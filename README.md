@@ -2,6 +2,9 @@
 
 Welcome to our free and open-source Point of Sale (POS) system, designed to provide a seamless and efficient retail experience. Built with Django and Vue.js, this application offers a robust, real-time, multi-tenant architecture, ensuring scalability and adaptability for businesses of all sizes.
 
+# UI/UX
+<img src="./idea/ui.png">
+
 ## Key Features
 
 - **Multi-Tenant Support**: Manage multiple stores or franchises effortlessly within a single platform, with each tenant's data securely isolated to maintain privacy and integrity.
