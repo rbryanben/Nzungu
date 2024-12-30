@@ -6,5 +6,9 @@ export default {
     // Password validator 
     password: (s)=>{
         return s.length > 5
-    } 
+    },
+    // None validator
+    none: (s)=>{
+        return true
+    }
 }

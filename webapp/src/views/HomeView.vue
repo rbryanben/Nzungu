@@ -25,8 +25,9 @@
 
   .tiles {
    height: 100vh;
+   z-index: 10;
    background-color: white;
-   border-right: solid 1.5px rgba(128, 128, 128, 0.156);
+   border-right: solid 1.5px rgba(128, 128, 128, 0.301);
    width: 100%;
    cursor: pointer;
   }
@@ -36,11 +37,11 @@
     display: flex;
     position: relative;
     background-color: rgba(182, 182, 182, 0.86);
-    width: 35px;
-    height: 35px;
+    width: 30px;
+    height: 30px;
     margin-left: auto;
     margin-right: auto;
-    border-radius: 5px;
+    border-radius: 8px;
     transition: all 0.1s ease-in;
   }
 
