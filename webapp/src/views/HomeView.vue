@@ -30,6 +30,11 @@
    border-right: solid 1.5px rgba(128, 128, 128, 0.301);
    width: 100%;
    cursor: pointer;
+   transition: all 0.2s ease-in;
+  }
+
+  .tiles:hover {
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 3px 10px 0 rgba(58, 58, 58, 0.19);
   }
 
   .tile {

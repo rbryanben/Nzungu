@@ -15,7 +15,7 @@
 
     input {
         border: none;
-        min-height: 28px;
+        min-height: 30px;
         min-width: 400px;
         outline: solid 1.2px rgba(128, 128, 128, 0.301);
         border-radius: 10px;
