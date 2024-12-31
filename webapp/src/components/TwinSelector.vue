@@ -3,10 +3,10 @@
         <div class="selector" :class="{'two' : selected == 1}">
         </div>
         <div class="item" :class="{'selected' : selected == 0}" @click=" onSelect(0)">
-            ZWG
+            <img src="/svg/us.svg" />
         </div>
         <div class="item" :class="{'selected' : selected == 1}" @click=" onSelect(1)">
-            USD
+            <img src="/svg/zw.svg" />
         </div>
     </div>
 </template>
@@ -38,7 +38,7 @@
     }
 
     .selector {
-        background-color: rgba(243, 139, 27, 0.64);
+        background-color: rgba(243, 139, 27, 0.308);
         width: calc(50% + 2px);
         height: 100%;
         display: flex;
@@ -52,6 +52,12 @@
     .selector.two {
         left: calc(50% - 2px);
         transition: all 0.1s ease-in;
+    }
+
+    img {
+        height: 15px;
+        width: 15px;
+        margin: 0 5px;
     }
 
 

@@ -1,8 +1,8 @@
 <template>
     <div class="wrapper">
-        <img src="/svg/search.svg" alt="">
         <div class="input-wrapper">
-            <input :class="{'error' : inputError }" :placeholder="hint" v-model="value" @input="onTextChanged" :type="type">
+            <img src="/svg/search.svg" alt="">
+            <input required :class="{'error' : inputError }" :placeholder="hint" v-model="value" @input="onTextChanged" :type="type">
         </div>
     </div>
 </template>
@@ -15,18 +15,30 @@
 
     input {
         border: none;
-        min-height: 30px;
-        min-width: 400px;
-        outline: solid 1.2px rgba(128, 128, 128, 0.301);
+        min-height: 35px;
+        min-width: 500px;
+        outline: solid 1.8px rgba(128, 128, 128, 0.181);
+        background-color: rgba(163, 163, 163, 0.084);
         border-radius: 10px;
         padding-left: 30px;
-        font-size: 0.8rem;
+        font-size: 0.9rem;
         transition: all 0.1s ease-in;
         color: rgb(32, 32, 32);
     }
 
     input:focus {
         outline: solid 1.8px rgba(243, 138, 27, 0.86);
+        background-color: white;
+        min-width: 600px;
+    }
+
+    input:focus~img {
+        opacity: 0.2;
+    }
+
+    input:valid {
+        background-color: white;
+        min-width: 600px;
     }
 
     input.error {
@@ -41,6 +53,7 @@
         left: 8px;
         top: 50%;
         transform: translateY(-50%);
+        object-fit: contain;
     }
 </style>
 

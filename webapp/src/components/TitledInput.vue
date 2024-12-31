@@ -24,18 +24,18 @@
         border: none;
         min-height: 30px;
         min-width: 300px;
-        outline: solid 1.2px grey;
+        outline: solid 1.8px rgba(128, 128, 128, 0.181);
         border-radius: 5px;
         padding-left: 8px;
         transition: all 0.1s ease-in;
     }
 
     input:focus {
-        outline: solid 1.3px rgb(62, 62, 62);
+        outline: solid 1.8px rgba(243, 138, 27, 0.86);
     }
 
     input.error {
-        outline: solid 1.3px rgb(193, 0, 0);
+        outline: solid 1.8px rgb(193, 0, 0);
     }
 </style>
 
