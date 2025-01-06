@@ -1,5 +1,6 @@
 <template>
     <div class="sales-wrapper">
+        <!-- Tool Bar  -->
         <div class="tool-bar">
             <div class="search-box-wrapper">
                 <LeftIconedInput validator="none" hint="Search your products here"/>
@@ -22,6 +23,28 @@
                 </div>
             </div>
         </div>
+
+        <!-- bottom  -->
+        <div class="bottom">
+            <!-- left -->
+            <div class="left">
+                <div class="categories">
+                    <div class="category-wrapper">
+                        <StockCategory />
+                    </div>
+                </div>
+                <div class="products">
+                    <div class="product-wrapper">
+                        <Product />
+                    </div>
+                </div>
+            </div>
+            <!-- Right -->
+            <div class="right">
+                R
+            </div>
+        </div>
+
     </div>
 </template>
 
@@ -91,17 +114,41 @@
         margin-top: auto;
         margin-bottom: auto;
     }
+
+    .bottom {
+        display: grid;
+        padding: 20px;
+        padding-top: 10px;
+        grid-template-columns: calc(100% - 350px) 350px;
+        min-height: calc(100% - 96.78px);
+        max-height: calc(100% - 96.78px);
+    }
+
+    .categories {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px 10px;
+        width: 100%;
+    }
+
+    .products {
+        padding-top: 20px;
+    }
 </style>
 
 <script>
     import LeftIconedInput from "../../components/LeftIconedInput"
     import TwinSelector from "@/components/TwinSelector.vue";
-    
+    import StockCategory from "@/components/StockCategory.vue";
+    import Product from "@/components/Product.vue";
+   
     export default {
         name: "SalesTab",
         components: {
             LeftIconedInput,
-            TwinSelector
+            TwinSelector,
+            StockCategory,
+            Product
         },
         data(){
             return {

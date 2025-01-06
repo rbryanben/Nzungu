@@ -4,7 +4,7 @@
             {{title}}
         </div>
         <div class="input-wrapper">
-            <input :class="{'error' : inputError }" :placeholder="placeholder" v-model="value" @input="onTextChanged" :type="type">
+            <input required :class="{'error' : inputError }" :placeholder="placeholder" v-model="value" @input="onTextChanged" :type="type">
         </div>
     </div>
 </template>
@@ -25,6 +25,7 @@
         min-height: 30px;
         min-width: 300px;
         outline: solid 1.8px rgba(128, 128, 128, 0.181);
+        background-color: rgba(163, 163, 163, 0.084);
         border-radius: 5px;
         padding-left: 8px;
         transition: all 0.1s ease-in;
@@ -32,6 +33,11 @@
 
     input:focus {
         outline: solid 1.8px rgba(243, 138, 27, 0.86);
+        background-color: white;
+    }
+
+    input:valid {
+        background-color: white;
     }
 
     input.error {
