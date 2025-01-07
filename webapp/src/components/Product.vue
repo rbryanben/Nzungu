@@ -19,13 +19,13 @@
                 $<span style="font-weight: bold;color: #404143;">0.50</span>  
             </div>
             <div class="right-buttons">
-                <div class="sub circle-button">
+                <div class="sub circle-button" @click="increment(-1)">
                     -
                 </div>
                 <div class="quantity">
-                    2
+                    {{ count }}
                 </div>
-                <div class="add circle-button">
+                <div class="add circle-button" :class="{'in-cart':count > 0}"  @click="increment()">
                     +
                 </div>
             </div>
@@ -145,10 +145,28 @@
     .add {
         color: rgb(40, 119, 165);
     }
+
+    .in-cart {
+        background-color: rgb(40, 130, 165);
+        color: white;
+    }
 </style>
 
 <script>
     export default {
-        name : "Product"
+        name : "Product",
+        data(){
+            return {
+                count : 0
+            }
+        },
+        methods: {
+            increment(count=1){
+                if (count == -1 && this.count == 0){
+                    return
+                }
+                this.count += count
+            }
+        }
     }
 </script>

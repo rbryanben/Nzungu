@@ -37,7 +37,7 @@
                     <div class="product-wrapper">
                         <Product />
                     </div>
-                </div>
+                </div>                                                                  
             </div>
             <!-- Right -->
             <div class="right">
