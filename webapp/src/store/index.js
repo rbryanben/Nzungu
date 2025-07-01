@@ -1,7 +1,9 @@
 import { createStore } from 'vuex'
+import sales_store from './sales_store'
 
 export default createStore({
-  state: {
+  state: { 
+     name : "yayy vuex is working"
   },
   getters: {
   },
@@ -10,5 +12,6 @@ export default createStore({
   actions: {
   },
   modules: {
+    sales : sales_store
   }
 })

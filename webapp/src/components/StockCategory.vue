@@ -1,14 +1,14 @@
 <template>
     <div class="wrapper button-effect">
         <div class="left">
-            <img src="/svg/burger-soda.svg" />
+            <img :src="icon_url" />
         </div>
         <div class="right">
             <div class="top">
-                Breakfast
+                {{name}}
             </div>
             <div class="bottom">
-                24 Items In Stock
+                {{ stock_count }} Items In Stock
             </div>
         </div>
     </div>
@@ -88,6 +88,24 @@
 
 <script>
     export default {
-        name : "StockCategory"
+        name : "StockCategory",
+        props: {
+            name: {
+                type: String,
+                default: "category-name"
+            },
+            stock_count: {
+                type: Number,
+                default: 0
+            },
+            ref : {
+                type: String,
+                default: "category-ref"
+            },
+            icon_url : {
+                type: String,
+                default: "/svg/burger-soda.svg"
+            }
+        }
     }
 </script>

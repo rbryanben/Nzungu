@@ -1,10 +1,9 @@
 <template>
-    <div class="wrapper" :class="{ 'disabled' : disabled }" @click="onClick">
+    <div class="wrapper" :class="{ 'disabled' : disabled},theme" @click="onClick">
         <div v-if="!loading">{{ text }}</div>
         <div v-if="loading" class="loader-wrapper">
             <div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
         </div>
-        
     </div>
 </template>
 
@@ -12,6 +11,10 @@
     .wrapper {
         min-height: 20px;
         transition: all 0.2s ease-in;
+    }
+
+    .wrapper.orange {
+        background-color: rgba(243, 138, 27, 0.86);
     }
 
     .wrapper.disabled {
@@ -169,6 +172,10 @@
             disabled: {
                 type: Boolean,
                 default: false
+            },
+            theme: {
+                type: String,
+                default: "dark"
             }
         },
         methods: {

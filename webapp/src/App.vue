@@ -5,6 +5,11 @@
 </template>
 
 <style>
+
+::-webkit-scrollbar{
+  display: none;
+}
+
   body {
     padding: 0;
     margin: 0;

@@ -29,19 +29,31 @@
             <!-- left -->
             <div class="left">
                 <div class="categories">
-                    <div class="category-wrapper">
-                        <StockCategory />
+                    <div class="category-wrapper" v-for="category in categories">
+                        <StockCategory 
+                            :name="category.name"
+                            :stock_count="category.stock_count"
+                            :icon_url="category.icon_url"
+                            :ref="category.ref"/>
                     </div>
                 </div>
                 <div class="products">
-                    <div class="product-wrapper">
-                        <Product />
+                    <div class="product-wrapper" v-for="product in filtered_products">
+                        <Product
+                            :name="product.name"
+                            :description="product.description"
+                            :stock="product.stock_count"
+                            :ref="product.ref"
+                            :price="product.price_usd"
+                            :image="product.image_url"/>
                     </div>
-                </div>                                                                  
+                </div>  
+                <br>
+                <br>                                                                
             </div>
             <!-- Right -->
             <div class="right">
-                R
+                <SidePanel />
             </div>
         </div>
 
@@ -51,7 +63,8 @@
 <style lang="css" scoped>
     .sales-wrapper {
         width: 100%;
-        height: 100%;
+        height: 100vh;
+        overflow-y: hidden;
     }
 
     .tool-bar {
@@ -120,8 +133,17 @@
         padding: 20px;
         padding-top: 10px;
         grid-template-columns: calc(100% - 350px) 350px;
-        min-height: calc(100% - 96.78px);
-        max-height: calc(100% - 96.78px);
+        height: calc(100vh - 65px);
+    }
+
+
+    .bottom .left {
+        height: inherit;
+        overflow-y: scroll;
+    }
+
+    .bottom .left::-webkit-scrollbar{
+        display: none;
     }
 
     .categories {
@@ -133,6 +155,10 @@
 
     .products {
         padding-top: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        column-gap: 10px;
+        row-gap: 10px;
     }
 </style>
 
@@ -141,18 +167,28 @@
     import TwinSelector from "@/components/TwinSelector.vue";
     import StockCategory from "@/components/StockCategory.vue";
     import Product from "@/components/Product.vue";
-   
+    import SidePanel from "@/components/SidePanel.vue";
+    
     export default {
         name: "SalesTab",
         components: {
             LeftIconedInput,
             TwinSelector,
             StockCategory,
-            Product
+            Product,
+            SidePanel
         },
         data(){
             return {
                 name: "Sales Tab Benso"
+            }
+        },
+        computed: {
+            filtered_products(){
+                return this.$store.state.sales.products
+            },
+            categories(){
+                return this.$store.state.sales.categories
             }
         }
     }

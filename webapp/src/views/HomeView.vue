@@ -77,6 +77,12 @@
 
 <script>
   export default {
-      name: "SaleView"
+      name: "SaleView",
+          mounted(){
+              // Fetch categories from the database 
+              this.$store.dispatch('sales/fetchAllCategories')
+              // Fetch products from the database 
+              this.$store.dispatch('sales/fetchAllProducts')
+          }
   }
 </script>

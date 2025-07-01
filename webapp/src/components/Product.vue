@@ -2,21 +2,21 @@
     <div class="wrapper">
         <div class="top">
             <div class="left">
-                <img src="/samples/king-curls.jpg" alt="">
+                <img :src="image" alt="">
             </div>
             <div class="right">
-                <div class="name">King Kurls</div>
+                <div class="name">{{name}}</div>
                 <div class="description">
-                    Curly snack 100g packs.
+                    {{ description}}
                 </div>
                 <div class="stock-count">
-                    22 Items in stock
+                    {{ stock }} Items in stock
                 </div>
             </div>
         </div>
         <div class="bottom">
             <div class="left">
-                $<span style="font-weight: bold;color: #404143;">0.50</span>  
+                $<span style="font-weight: bold;color: #404143;">{{ price }}</span>  
             </div>
             <div class="right-buttons">
                 <div class="sub circle-button" @click="increment(-1)">
@@ -38,7 +38,8 @@
         padding: 10px;
         border-radius: 10px;
         background-color: white;
-        width: fit-content;
+        width: 305px;
+        max-width: 305px;
     }
 
     .button-effect::after {
@@ -69,6 +70,10 @@
     .wrapper .top .right .name {
         font-weight: bold;
         font-size: 1rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 195px;
     }
 
     .wrapper .top .right .description {
@@ -76,6 +81,10 @@
         color: rgb(90, 89, 89);
         margin-top: 8px;
         min-width: 180px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 195px;
     }
 
     .wrapper .top .right .stock-count {
@@ -167,6 +176,33 @@
                 }
                 this.count += count
             }
+        },
+        props: {
+            ref : {
+                type: String,
+                default: "product-ref"
+            },
+            name : {
+                type: String,
+                default: "product-name"
+            },
+            description : {
+                type: String,
+                default: "product-description"
+            },
+            stock : {
+                type: Number,
+                default: 0
+            },
+            image: {
+                type: String,
+                default: "/samples/king-curls.jpg"
+            },
+            price : {
+                type: Number,
+                default: 0
+            },
+            
         }
     }
 </script>
