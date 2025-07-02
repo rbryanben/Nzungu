@@ -73,6 +73,14 @@
     height: 20px;
     margin: auto;
   }
+
+  @media only screen and (max-width: 1200px) {
+    .tile img {
+      width: 15px;
+      height: 15px;
+      margin: auto;
+    }
+  }
 </style>
 
 <script>

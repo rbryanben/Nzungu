@@ -9,7 +9,8 @@ export const DUMMY_PRODUCTS = [
     "in_stock": 20,
     "price_usd": 1.1,
     "price_zwg": 42.2,
-    "last_updated": "2025-06-28T14:47:53.123Z"
+    "last_updated": "2025-06-28T14:47:53.123Z",
+    "image_url" : "/samples/king-curls.jpg"
   },
   {
     "id": 2,
@@ -203,46 +204,53 @@ export const DUMMY_PRODUCTS = [
 ]
 
 export const DUMMY_CATEGORIES = [
-    {
-        "id": 0,
-        "name": "Beverages",
-        "ref": "f334fc71-e5d4-4a5a-a5f0-5b5b89598047",
-        "last_updated": "2025-06-28T16:42:58+0000"
-    },
-    {
-        "id": 1,
-        "name": "Snacks",
-        "ref": "1e3b07b0-d5de-41de-b1b2-8f1b0b05359d",
-        "last_updated": "2025-06-28T16:45:10+0000"
-    },
-    {
-        "id": 2,
-        "name": "Household",
-        "ref": "2fa8454a-3036-42c2-9a76-391db214ea54",
-        "last_updated": "2025-06-28T16:45:15+0000"
-    },
-    {
-        "id": 3,
-        "name": "Bakery",
-        "ref": "ab54cbe5-9847-44f2-9372-6bc13f3c02b7",
-        "last_updated": "2025-06-28T16:45:20+0000"
-    },
-    {
-        "id": 4,
-        "name": "Dairy",
-        "ref": "b87c0df4-d6c0-4705-b9d5-d1df9171e1b3",
-        "last_updated": "2025-06-28T16:45:25+0000"
-    },
-    {
-        "id": 5,
-        "name": "Personal Care",
-        "ref": "b5eb9f0f-235c-4d8a-8a1b-460aeb729dc6",
-        "last_updated": "2025-06-28T16:45:30+0000"
-    },
-    {
-        "id": 6,
-        "name": "Canned Goods",
-        "ref": "a43be360-1c5c-4a2c-a75e-30c3ec06d7e8",
-        "last_updated": "2025-06-28T16:45:35+0000"
-    }
+  {
+    id: 0,
+    name: "Beverages",
+    ref: "f334fc71-e5d4-4a5a-a5f0-5b5b89598047",
+    last_updated: "2025-06-28T16:42:58+0000",
+    icon: "bottle-water.svg"
+  },
+  {
+    id: 1,
+    name: "Snacks",
+    ref: "1e3b07b0-d5de-41de-b1b2-8f1b0b05359d",
+    last_updated: "2025-06-28T16:45:10+0000",
+    icon: "cookie.svg"
+  },
+  {
+    id: 2,
+    name: "Household",
+    ref: "2fa8454a-3036-42c2-9a76-391db214ea54",
+    last_updated: "2025-06-28T16:45:15+0000",
+    icon: "soap.svg"
+  },
+  {
+    id: 3,
+    name: "Bakery",
+    ref: "ab54cbe5-9847-44f2-9372-6bc13f3c02b7",
+    last_updated: "2025-06-28T16:45:20+0000",
+    icon: "bread-loaf.svg"
+  },
+  {
+    id: 4,
+    name: "Dairy",
+    ref: "b87c0df4-d6c0-4705-b9d5-d1df9171e1b3",
+    last_updated: "2025-06-28T16:45:25+0000",
+    icon: "cheese-swiss.svg"
+  },
+  {
+    id: 5,
+    name: "Personal Care",
+    ref: "b5eb9f0f-235c-4d8a-8a1b-460aeb729dc6",
+    last_updated: "2025-06-28T16:45:30+0000",
+    icon: "baby.svg"
+  },
+  {
+    id: 6,
+    name: "Canned Goods",
+    ref: "a43be360-1c5c-4a2c-a75e-30c3ec06d7e8",
+    last_updated: "2025-06-28T16:45:35+0000",
+    icon: "can-food.svg"
+  }
 ];

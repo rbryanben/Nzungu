@@ -19,7 +19,7 @@
                 $<span style="font-weight: bold;color: #404143;">{{ price }}</span>  
             </div>
             <div class="right-buttons">
-                <div class="sub circle-button" @click="increment(-1)">
+                <div class="sub circle-button" @mousedown="increment(-1)">
                     -
                 </div>
                 <div class="quantity">
@@ -61,6 +61,7 @@
     .button-effect:hover:after{
         width: 240%;
     }
+
     .wrapper .top {
         display: grid;
         grid-column-gap: 15px;
@@ -123,6 +124,7 @@
         width: fit-content;
         margin-left: auto;
         cursor: pointer;
+        pointer-events: none;
     }
 
     .wrapper .bottom .right-buttons .quantity {
@@ -135,6 +137,7 @@
 
     .circle-button {
         display: flex;
+        pointer-events: all;
         justify-content: center;
         align-items: center;
         padding: 10px;
@@ -147,10 +150,6 @@
         transition: all 0.2s ease-in;
     }
 
-    .circle-button:hover{
-        background-color: rgb(243, 243, 243);
-    }
-
     .add {
         color: rgb(40, 119, 165);
     }
@@ -159,6 +158,88 @@
         background-color: rgb(40, 130, 165);
         color: white;
     }
+
+    
+    @media only screen and (max-width: 1200px) {
+        .wrapper {
+            width: 200px;
+            max-width: 200px;
+            padding: 6px;
+        }
+
+        .wrapper .top {
+            display: grid;
+            grid-column-gap: 8px;
+            grid-template-columns: 1.5fr auto;
+        }
+        
+        .wrapper img {
+            height: 40px;
+            width: 40px;
+        }
+
+         .wrapper .top .right .name {
+            font-size: 0.8rem;
+            width: 140px;
+        }
+
+        .wrapper .top .right .description {
+            font-size: 0.7rem;
+            width: 140px;
+        }
+
+        
+        .wrapper .bottom .right-buttons {
+            display: flex;
+            margin-left: auto;
+            margin-right: 0px;
+            cursor: pointer;
+        }
+
+    }
+
+    @media only screen and (max-width: 750px) {
+        .wrapper {
+            width: 150px;
+            max-width: 150px;
+            padding: 6px;
+        }
+
+        .wrapper .top {
+            display: grid;
+            grid-column-gap: 8px;
+            grid-template-columns: 38px auto;
+        }
+        
+        .wrapper img {
+            height: 30px;
+            width: 30px;
+        }
+
+         .wrapper .top .right .name {
+            font-size: 0.7rem;
+            width: 140px;
+        }
+
+        .wrapper .top .right .description {
+            font-size: 0.6rem;
+            width: 140px;
+        }
+
+        .wrapper .top .right .stock-count {
+            font-size: 0.5rem;
+        }
+
+        .wrapper .bottom .left {
+            font-size: 1.1rem;
+        }
+
+        .wrapper .bottom .right-buttons {
+            transform: scale(0.8);
+        }
+
+    }
+
 </style>
 
 <script>
@@ -171,10 +252,9 @@
         },
         methods: {
             increment(count=1){
-                if (count == -1 && this.count == 0){
-                    return
-                }
-                this.count += count
+                this.count = Math.max(0,this.count + count)
+                // Emit
+                this.$emit('on_update_product',count)
             }
         },
         props: {

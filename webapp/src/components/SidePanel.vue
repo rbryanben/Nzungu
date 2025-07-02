@@ -4,26 +4,16 @@
             Invoice
         </div>
         <div class="products-list">
-            <div class="product-wrapper">
-                <ProductSmall />
+            <div class="product-wrapper" v-for="product in cart_products" :key="product.updated">
+                <ProductSmall 
+                    :product_name="product.name"
+                    :cart_count="product.cart_count"
+                    :product_description="product.description"
+                    :image_url="product.image_url"
+                    :display_price="this.$store.state.currency === 'ZWG' ? product.product_price_zwg * product.cart_count : product.product_price_usd * product.cart_count" />
             </div>
-            <div class="product-wrapper">
-                <ProductSmall />
-            </div>
-            <div class="product-wrapper">
-                <ProductSmall />
-            </div>
-            <div class="product-wrapper">
-                <ProductSmall />
-            </div>
-            <div class="product-wrapper">
-                <ProductSmall />
-            </div>
-            <div class="product-wrapper">
-                <ProductSmall />
-            </div>
-            <div class="product-wrapper">
-                <ProductSmall />
+            <div v-if="cart_products.length === 0" class="empty-cart-tag">
+                Empty Cart
             </div>
         </div>
         <div class="payment-summary">
@@ -32,14 +22,14 @@
             </div>
             <div class="summary">
                 <div>Sub Total</div>
-                <div style="margin-left: auto;">$<b>131.2</b></div>
+                <div style="margin-left: auto;">$<b>{{this.$store.state.currency === 'ZWG' ? this.$store.getters['cart/cart_subtotal'].subtotal_zwg : this.$store.getters['cart/cart_subtotal'].subtotal_usd }}</b></div>
                 <div>Tax</div>
-                <div style="margin-left: auto;">$<b>5.2</b></div>
+                <div style="margin-left: auto;">$<b>{{this.$store.state.currency === 'ZWG' ? this.$store.getters['cart/cart_subtotal'].tax_zwg : this.$store.getters['cart/cart_subtotal'].tax_usd }}</b></div>
             </div>
             <div class="dotted-line"></div>
             <div class="summary">
                 <div>Total Payment</div>
-                <div style="margin-left: auto;">$<b>136.4</b></div>
+                <div style="margin-left: auto;">$<b>{{ cartTotal }}</b></div>
             </div>
             <div class="payment-types-wrapper">
                 <div class="payment-type" 
@@ -75,12 +65,24 @@
             </div>
         </div>
         <div class="finish-button">
-            <PlainButton text="Complete Cart" theme="orange"/>
+            <PlainButton text="Complete Cart" theme="orange"
+                :disabled="cart_products.length === 0"/>
         </div>
     </div>
 </template>
 
 <style lang="css" scoped>
+
+    .empty-cart-tag {
+        position: absolute;
+        top: 50%;
+        left: 50%; 
+        transform: translate(-50%,-50%);
+        font-size: 0.8rem;  
+        font-weight: bold;
+        opacity: 0.6;    
+    }
+
     .side-panel-wrapper {
         background-color: white;
         border: solid 1.8px rgba(128, 128, 128, 0.203);
@@ -102,6 +104,7 @@
         margin-top: 15px;
         height: 40%;
         overflow-y: scroll;
+        position: relative;
     }
 
     .side-panel-wrapper .products-list::-webkit-scrollbar{
@@ -218,6 +221,55 @@
         left: 0px;
         width: calc(100% - 30px);
     }
+
+    @media only screen and (max-width: 1200px) {
+        .side-panel-wrapper .title-wrapper {
+            font-size: 1rem;
+        }
+
+        .side-panel-wrapper .products-list {
+            margin-left: 10px;
+            margin-top: 0px;
+
+        }
+
+        .payment-summary .title {
+            font-size: 0.7rem;
+        }
+
+        .payment-summary .summary {
+            font-size: 0.6rem;
+        }
+
+
+        .payment-type{
+            width: 60px;
+            height: fit-content;
+            font-size: 0.5rem;
+            color: grey;
+            border-radius: 5px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            transition: all 0.1s ease-in;
+        }
+
+    }
+
+
+    @media only screen and (max-width: 700px) {
+
+        .payment-type{
+            width: 60px;
+            height: fit-content;
+            font-size: 0.5rem;
+            color: grey;
+            border-radius: 5px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            transition: all 0.1s ease-in;
+        }
+
+    }
 </style>
 
 <script>
@@ -238,6 +290,24 @@
         methods: {
             changePaymentType(newType){
                 this.$data.payment_type = newType
+            }
+        },
+        computed: {
+            cartTotal() {
+                const currency = this.$store.state.currency
+                const cart = this.$store.getters['cart/cart_subtotal']
+                if (currency === 'ZWG') {
+                    return cart.subtotal_zwg + cart.tax_zwg
+                } 
+                else {
+                    return cart.subtotal_usd + cart.tax_usd
+                }
+            }
+        },
+        props : {
+            cart_products : {
+                type : Array,
+                default : []
             }
         }
     }

@@ -1,10 +1,14 @@
 <template>
-  <div class="app">
+  <div class="app" style="noselect">
     <router-view/>
   </div>
 </template>
 
 <style>
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
 
 ::-webkit-scrollbar{
   display: none;
@@ -51,6 +55,13 @@
   .subtitle {
     font-size: 1rem;
     opacity: 0.8;
+  }
+
+  .noselect {
+    user-select: none;
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none;    /* Firefox */
+    -ms-user-select: none;     /* IE/Edge */
   }
 
 </style>

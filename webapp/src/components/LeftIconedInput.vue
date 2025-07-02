@@ -55,6 +55,21 @@
         transform: translateY(-50%);
         object-fit: contain;
     }
+
+    @media only screen and (max-width: 1200px) {
+        input {
+            border: none;
+            min-height: 35px;
+            min-width: 350px;
+            outline: solid 1.8px rgba(128, 128, 128, 0.181);
+            background-color: rgba(163, 163, 163, 0.084);
+            border-radius: 10px;
+            padding-left: 30px;
+            font-size: 0.9rem;
+            transition: all 0.1s ease-in;
+            color: rgb(32, 32, 32);
+        }
+    }
 </style>
 
 <script>

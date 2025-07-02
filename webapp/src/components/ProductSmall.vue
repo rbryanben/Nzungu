@@ -1,20 +1,20 @@
 <template>
     <div class="product-small-wrapper">
         <div class="left">
-            <img class="product-image" src="/samples/king-curls.jpg" />
+            <img class="product-image" :src="image_url" />
         </div>
         <div class="right">
             <div class="title">
-                Pasta Bolognese
+                {{ product_name }}
             </div>
             <div class="count">
-                x2
+                x{{ cart_count }}
             </div>
             <div class="category">
-                Fruits and Vegetables
+                {{ product_description }}
             </div>
             <div class="total-price">
-                $<b>50.5</b>
+                $<b>{{ display_price.toFixed(2) }}</b>
             </div>
         </div>
     </div>
@@ -55,6 +55,41 @@
         bottom: 0px;
         font-size: 0.9rem;
     }
+
+    @media only screen and (max-width: 1200px) {
+        .product-small-wrapper {
+            grid-template-columns: 40px auto;
+        }
+
+        .product-image {
+            height: 35px;
+            width: 35px;
+        }
+
+        .title {
+            font-size: 0.8rem;
+        }
+
+        .count {
+            font-size: 0.6rem;
+            margin-top: -2px;
+        }
+
+        .category {
+            margin-top: 2px;
+            font-size: 0.6rem;
+        }
+
+        .total-price {
+            position: absolute;
+            right: 10px;
+            font-size: 0.7rem;
+        }
+    }
+
+    @media only screen and (max-width: 750px) {
+
+    }
 </style>
 
 <script>
@@ -63,6 +98,28 @@
         data(){
             return {
                 name : "Product Small"
+            }
+        },
+        props: {
+            product_name : {
+                type: String,
+                default: "product-name"
+            },
+            cart_count : {
+                type: Number,
+                default: 1
+            },
+            product_description : {
+                type: String,
+                default: "product-description"
+            },
+            display_price : {
+                type: Number,
+                default: 0
+            },
+            image_url : {
+                type: String,
+                default: "product-name"
             }
         }
     }

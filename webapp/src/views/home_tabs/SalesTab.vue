@@ -6,7 +6,7 @@
                 <LeftIconedInput validator="none" hint="Search your products here"/>
             </div>
             <div class="currency-icon-wrapper">
-                <TwinSelector />
+                <TwinSelector @on-select-changed="onCurrencyChange" />
             </div>
             <div class="notification-icon-wrapper">
                 <img src="/svg/bell.svg" alt="" class="bell">
@@ -29,23 +29,24 @@
             <!-- left -->
             <div class="left">
                 <div class="categories">
-                    <div class="category-wrapper" v-for="category in categories">
+                    <div class="category-wrapper" :key="category.ref" v-for="category in categories">
                         <StockCategory 
                             :name="category.name"
                             :stock_count="category.stock_count"
-                            :icon_url="category.icon_url"
+                            :icon="category.icon"
                             :ref="category.ref"/>
                     </div>
                 </div>
                 <div class="products">
-                    <div class="product-wrapper" v-for="product in filtered_products">
+                    <div class="product-wrapper" :key="product.ref" v-for="product in filtered_products">
                         <Product
                             :name="product.name"
                             :description="product.description"
                             :stock="product.stock_count"
                             :ref="product.ref"
-                            :price="product.price_usd"
-                            :image="product.image_url"/>
+                            :price="this.$store.state.currency === 'ZWG' ? product.price_zwg : product.price_usd"
+                            :image="product.image_url"
+                            v-on:on_update_product="(e)=>onCartProductUpdate(product,e)"/>
                     </div>
                 </div>  
                 <br>
@@ -53,7 +54,7 @@
             </div>
             <!-- Right -->
             <div class="right">
-                <SidePanel />
+                <SidePanel :cart_products="this.$store.getters['cart/cart_products']" />
             </div>
         </div>
 
@@ -136,7 +137,6 @@
         height: calc(100vh - 65px);
     }
 
-
     .bottom .left {
         height: inherit;
         overflow-y: scroll;
@@ -160,6 +160,36 @@
         column-gap: 10px;
         row-gap: 10px;
     }
+    
+    @media only screen and (max-width: 1200px) {
+        .bottom {
+            grid-template-columns: auto 240px;
+        }
+        
+        .tool-bar {
+            background-color: white;
+            height: 45px;
+            max-height: 45px;
+            padding-left: 20px;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            border-bottom: solid 1.8px rgba(128, 128, 128, 0.116);
+            display: grid;
+            grid-template-columns: 0.8fr 0.05fr 0.05fr 0.2fr;
+        }
+
+        .search-box-wrapper{
+            width: 100%;
+            margin-left: 0%;
+        }
+    }
+
+     @media only screen and (max-width: 1000px) {
+        .bottom {
+            grid-template-columns: auto 220px;
+        }
+    }
+
 </style>
 
 <script>
@@ -181,6 +211,24 @@
         data(){
             return {
                 name: "Sales Tab Benso"
+            }
+        },
+        methods: {
+            onCartProductUpdate(product,count){
+                if (count > 0){
+                    this.$store.commit('cart/addProduct',product)
+                }
+                else {
+                    this.$store.commit('cart/removeProduct',product)
+                }
+            },
+            onCurrencyChange(index){
+                if (index === 0){
+                    this.$store.commit('setCurrency', 'USD')
+                }
+                else {
+                    this.$store.commit('setCurrency', 'ZWG')       
+                }
             }
         },
         computed: {
