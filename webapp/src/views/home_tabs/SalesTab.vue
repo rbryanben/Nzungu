@@ -3,7 +3,7 @@
         <!-- Tool Bar  -->
         <div class="tool-bar">
             <div class="search-box-wrapper">
-                <LeftIconedInput validator="none" hint="Search your products here"/>
+                <LeftIconedInput validator="none" v-on:on-text-changed="onSearchTextChanged" hint="Search your products here"/>
             </div>
             <div class="currency-icon-wrapper">
                 <TwinSelector @on-select-changed="onCurrencyChange" />
@@ -34,7 +34,9 @@
                             :name="category.name"
                             :stock_count="category.stock_count"
                             :icon="category.icon"
-                            :ref="category.ref"/>
+                            :ref="category.ref"
+                            :selected="selected_category === category.ref"
+                            @click="()=>selected_category = category.ref"/>
                     </div>
                 </div>
                 <div class="products">
@@ -43,7 +45,7 @@
                             :name="product.name"
                             :description="product.description"
                             :stock="product.stock_count"
-                            :ref="product.ref"
+                            :product_ref="product.ref"
                             :price="this.$store.state.currency === 'ZWG' ? product.price_zwg : product.price_usd"
                             :image="product.image_url"
                             v-on:on_update_product="(e)=>onCartProductUpdate(product,e)"/>
@@ -54,7 +56,10 @@
             </div>
             <!-- Right -->
             <div class="right">
-                <SidePanel :cart_products="this.$store.getters['cart/cart_products']" />
+                <SidePanel 
+                    :cart_products="this.$store.getters['cart/cart_products']"
+                    :proccessing="submitting_cart" 
+                    @complete-cart="onCompleteCart"/>
             </div>
         </div>
 
@@ -184,7 +189,7 @@
         }
     }
 
-     @media only screen and (max-width: 1000px) {
+    @media only screen and (max-width: 1000px) {
         .bottom {
             grid-template-columns: auto 220px;
         }
@@ -198,6 +203,9 @@
     import StockCategory from "@/components/StockCategory.vue";
     import Product from "@/components/Product.vue";
     import SidePanel from "@/components/SidePanel.vue";
+    import { completeCart } from "@/repo/SaleRepo";
+import ProductModel from "@/models/ProductModel";
+import { generateUUID } from "@/utils/common";
     
     export default {
         name: "SalesTab",
@@ -210,8 +218,14 @@
         },
         data(){
             return {
-                name: "Sales Tab Benso"
+                selected_category: '*',
+                search_text : '',
+                submitting_cart: false,
+                idempotence_key : null
             }
+        },
+        mounted(){
+            this.idempotence_key = generateUUID()
         },
         methods: {
             onCartProductUpdate(product,count){
@@ -229,11 +243,64 @@
                 else {
                     this.$store.commit('setCurrency', 'ZWG')       
                 }
+            },
+            onSearchTextChanged(searchText){
+                this.selected_category = '*'
+                this.search_text = searchText
+            },
+            onCartCompleted(success,payload){
+                // Stop the loading 
+                this.submitting_cart = false
+                
+                // log the event
+                alert('Cart Completed')
+            },
+            onCompleteCart(){
+                // Show progress 
+                this.submitting_cart = true
+
+                // Submit cart
+                let listOfProductModel = this.$store.getters['cart/cart_products_as_individual_list'].map(product => {
+                    return new ProductModel()
+                        .setId(product.id)
+                        .setRef(product.ref)
+                        .setFetched(product.fetched)
+                        .setName(product.name)
+                        .setCategoryRef(product.category.ref)
+                        .setDescription(product.description)
+                        .setInStock(product.in_stock)
+                        .setPriceUsd(product.price_usd)
+                        .setPriceZwg(product.price_zwg)
+                        .setLastUpdated(product.last_updated)
+                })
+
+                // Complete the cart 
+                completeCart(this.onCartCompleted,listOfProductModel,this.$store.state.currency,this.idempotence_key)
+            
             }
         },
         computed: {
             filtered_products(){
-                return this.$store.state.sales.products
+                
+                // Filter with search text 
+                let products = this.$store.state.sales.products.filter(product => {
+                    return product.name.toLowerCase().includes(this.search_text.toLowerCase()) ||
+                        product.description.toLowerCase().includes(this.search_text.toLowerCase()) || 
+                        product.category.name.toLowerCase().includes(this.search_text.toLowerCase())
+                })
+
+                // Return all products if the filter is a wildcard
+                if (this.selected_category === '*'){
+                    return products
+                }
+
+                // Return only products in the cart if selected is cart 
+                if (this.selected_category === 'cart'){
+                    return products.filter(product => product.ref in this.$store.getters['cart/cart_products_references_set'])
+                }
+
+                // Return from selected cateogry
+                return products.filter(product => product.category.ref === this.selected_category)
             },
             categories(){
                 return this.$store.state.sales.categories

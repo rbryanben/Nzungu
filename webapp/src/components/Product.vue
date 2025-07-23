@@ -245,20 +245,26 @@
 <script>
     export default {
         name : "Product",
-        data(){
-            return {
-                count : 0
-            }
-        },
         methods: {
             increment(count=1){
-                this.count = Math.max(0,this.count + count)
                 // Emit
                 this.$emit('on_update_product',count)
             }
         },
+        computed : {
+            count(){
+                // If product in cart return that instead 
+                if (this.product_ref != null
+                    && this.$store.getters['cart/cart_products_references_set'] != null
+                    && this.product_ref in this.$store.getters['cart/cart_products_references_set']){
+                        return this.$store.getters['cart/cart_products_references_set'][this.product_ref]
+                }
+
+                return 0;
+            }
+        },
         props: {
-            ref : {
+            product_ref : {
                 type: String,
                 default: "product-ref"
             },
@@ -281,8 +287,7 @@
             price : {
                 type: Number,
                 default: 0
-            },
-            
+            }  
         }
     }
 </script>

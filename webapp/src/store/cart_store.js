@@ -85,6 +85,33 @@ export default {
             tax_zwg : 0,
             tax_usd : 0
         }
+    },
+    cart_products_references_set(state){
+        // Set to return 
+        let referenceSet = {}
+
+        Object.keys(state.working_cart).forEach(cart_key => {
+            let item = state.working_cart[cart_key]   
+            referenceSet[item.product.ref] = item.count
+        });
+
+        return referenceSet
+    },
+    cart_products_as_individual_list(state){
+        
+        // List to return  
+        let cart_list = []
+
+        // Add products 
+        Object.keys(state.working_cart).forEach(cart_key => {
+            let item = state.working_cart[cart_key]  
+            // Add items 
+            for (let i = 0; i < item.count; i++) {
+                cart_list.push(item.product);
+            }
+        });
+
+        return cart_list
     }
   },
 }

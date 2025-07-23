@@ -66,7 +66,9 @@
         </div>
         <div class="finish-button">
             <PlainButton text="Complete Cart" theme="orange"
-                :disabled="cart_products.length === 0"/>
+                :disabled="cart_products.length === 0"
+                :loading="proccessing"
+                @on-click="$emit('complete-cart')"/>
         </div>
     </div>
 </template>
@@ -308,6 +310,10 @@
             cart_products : {
                 type : Array,
                 default : []
+            },
+            proccessing:{
+                type : Boolean,
+                default: false
             }
         }
     }

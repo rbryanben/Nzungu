@@ -1,5 +1,5 @@
 <template>
-    <div class="wrapper button-effect">
+    <div class="wrapper button-effect" :class="{'selected' : selected}">
         <div class="left">
             <img :src="valid_icon" />
         </div>
@@ -25,6 +25,10 @@
         border-radius: 8px;
         grid-column-gap: 8px;
         border: solid 1.8px rgba(128, 128, 128, 0.116);        
+    }
+
+    .wrapper.selected {
+        background-color: rgb(255 246 237 / 86%);
     }
 
     .button-effect {
@@ -146,7 +150,8 @@
                     "bottle-water.svg",
                     "cookie.svg",
                     "soap.svg",
-                    "baby.svg"
+                    "baby.svg",
+                    "shopping-basket.svg"
                 ]);
 
 
@@ -173,6 +178,10 @@
             icon : {
                 type: String,
                 default: "/svg/burger-soda.svg"
+            },
+            selected : {
+                type: Boolean,
+                default: false
             }
         }
     }

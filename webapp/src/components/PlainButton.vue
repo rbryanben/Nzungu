@@ -1,5 +1,5 @@
 <template>
-    <div class="wrapper" :class="{ 'disabled' : disabled},theme" @click="onClick">
+    <div class="wrapper" :class="[{ 'disabled' : disabled},theme,size]" @click="onClick">
         <div v-if="!loading">{{ text }}</div>
         <div v-if="loading" class="loader-wrapper">
             <div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
@@ -8,10 +8,23 @@
 </template>
 
 <style lang="css" scoped>
-    .wrapper {
+
+   .wrapper {
+        position: relative;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        background-color: rgb(63, 63, 63);
+        overflow: hidden;
         min-height: 20px;
         transition: all 0.2s ease-in;
     }
+
 
     .wrapper.orange {
         background-color: rgba(243, 138, 27, 0.86);
@@ -123,19 +136,7 @@
     }
     }
 
-    .wrapper {
-        position: relative;
-        color: white;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 10px 20px;
-        border-radius: 5px;
-        font-size: 0.9rem;
-        cursor: pointer;
-        background-color: rgb(63, 63, 63);
-        overflow: hidden;
-    }
+ 
 
     .wrapper::before {
         content: '';
@@ -155,6 +156,13 @@
         width: 100%;
     }
     
+    @media only screen and (max-width: 1200px) {
+        .wrapper {
+            padding: 5px 3px;
+            font-size: 0.7rem;
+        }
+    }
+
 </style>
 
 <script>
@@ -176,6 +184,10 @@
             theme: {
                 type: String,
                 default: "dark"
+            },
+            size : {
+                type: String,
+                default: 'normal'
             }
         },
         methods: {

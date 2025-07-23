@@ -37,6 +37,10 @@
     .title {
         font-size: 1rem;
         font-weight: bold;
+        width: 90%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .count {
@@ -47,6 +51,10 @@
     .category {
         margin-top: 7px;
         font-size: 0.9rem;
+        width: 70%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .total-price {
@@ -68,6 +76,7 @@
 
         .title {
             font-size: 0.8rem;
+            width: 70%;
         }
 
         .count {
@@ -78,6 +87,7 @@
         .category {
             margin-top: 2px;
             font-size: 0.6rem;
+            width: 55%;
         }
 
         .total-price {
