@@ -23,9 +23,14 @@
     .wrapper {
         background-color: white;
         width: fit-content;
-        font-size: 0.7rem;
+        font-size: 0.9rem;
         border-radius: 8px;
         padding: 10px;
+        cursor: pointer;
+    }
+
+    .wrapper:hover{
+        background-color: rgb(251, 249, 245);
     }
 
     .wrapper.selected{
@@ -35,14 +40,14 @@
 
     .top {
         display: grid;
-        grid-template-columns: 30px 100px;
+        grid-template-columns: 35px 130px;
         grid-column-gap: 10px;
     }
 
     .top .left .shadow {
         background-color: rgba(185, 185, 185, 0.207);
-        width: 30px;
-        height: 30px;
+        width: 35px;
+        height: 35px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -55,18 +60,71 @@
     }
 
     .top img {
-        height: 12px;
-        widows: 12px;
+        height: 14px;
+        widows: 14px;
         opacity: 0.6;
     }
 
     .middle {
-        margin-top: 8px;
-        font-size: 0.6rem;
+        margin-top: 15px;
+        font-size: 0.8rem;
     }
 
     .bottom {
-        margin-top: 5px;
+        margin-top: 10px;
+        font-size: 0.9rem;
+    }
+
+
+    @media only screen and (max-width: 1200px) {
+        .wrapper {
+            background-color: white;
+            width: fit-content;
+            font-size: 0.7rem;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .wrapper.selected{
+            background-color: rgb(251, 249, 245);
+            outline: solid 1.2px rgba(255, 207, 117, 0.348);
+        }
+
+        .top {
+            display: grid;
+            grid-template-columns: 30px 100px;
+            grid-column-gap: 10px;
+        }
+
+        .top .left .shadow {
+            background-color: rgba(185, 185, 185, 0.207);
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+
+        .top .right {
+            margin-top: 8px;
+            font-weight: bold;
+        }
+
+        .top img {
+            height: 12px;
+            widows: 12px;
+            opacity: 0.6;
+        }
+
+        .middle {
+            margin-top: 8px;
+            font-size: 0.6rem;
+        }
+
+        .bottom {
+            margin-top: 5px;
+        }
     }
 </style>
 

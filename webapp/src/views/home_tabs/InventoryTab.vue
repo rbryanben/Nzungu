@@ -101,7 +101,7 @@
                             In Stock
                         </div>
                         <div class="item">
-                            ${{product.price_usd}}
+                            USD$<b style="margin-left:4px;">{{product.price_usd}}</b>
                         </div>
                         <div class="item">
                             {{product.sold }}
@@ -155,23 +155,23 @@
 
     .inventory-overview-wrapper .top {
         display: grid;
-        grid-template-columns: auto 110px 70px;
+        grid-template-columns: auto 140px 100px;
         grid-column-gap: 10px;
     }
 
     .inventory-overview-wrapper .top .title {
-        font-size: 0.9rem;
+        font-size: 1.2rem;
         margin-top: 8px;
     }
 
     select {
-        height: 30px;
+        height: 40px;
         border-radius: 5px;
         background-color: white;
-        min-width: 100px;
+        min-width: 90px;
         padding-left: 5px;
         padding-right: 5px;
-        font-size: 0.7rem;
+        font-size: 0.9rem;
         border: solid rgb(203, 203, 203) 1px;
     }
 
@@ -179,7 +179,7 @@
         margin-top: 15px;
         display: grid;
         grid-template-columns: 0.5fr 0.75fr 1.3fr 2.4fr 2.2fr 1.3fr 1.05fr 1fr 1fr 1fr;
-        font-size: 0.8rem;
+        font-size: 0.9rem;
         background-color: #F5F5F5;
         height: 40px;
         padding-left: 15px;
@@ -198,8 +198,8 @@
     .inventory-item {
         display: grid;
         grid-template-columns: 0.5fr 0.75fr 1.3fr 2.4fr 2.2fr 1.3fr 1.05fr 1fr 1fr 1fr;
-        font-size: 0.8rem;
-        height: 40px;
+        font-size: 0.9rem;
+        height: 50px;
         padding-left: 15px;
         background-color: white;
         border-bottom: solid 1.2px rgba(136, 136, 136, 0.067);
@@ -224,10 +224,119 @@
     }
     
     .inventory-item  img {
-        height: 25px;
-        width: 25px;
+        height: 30px;
+        width: 30px;
         object-fit: cover;
     }
+
+    @media only screen and (max-width: 1200px) { 
+    
+        .inventory-wrapper {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .bottom-page-wrapper {
+            height: calc(100vh - 50px);
+            overflow-y: scroll;
+            overflow-x: hidden;
+        }
+
+        .summary{
+            display: flex;
+            column-gap: 10px;
+            padding: 10px;
+            width: calc(100vw - 50px);
+            overflow-x: scroll;
+        }
+        
+        .inventory-overview-wrapper {
+            background-color: white;
+            margin-left: 10px;
+            margin-right: 10px;
+            padding: 10px 10px;
+            padding-bottom: none;
+            border-radius: 8px;
+            padding-bottom: 15px;
+        } 
+
+        .inventory-overview-wrapper .top {
+            display: grid;
+            grid-template-columns: auto 110px 70px;
+            grid-column-gap: 10px;
+        }
+
+        .inventory-overview-wrapper .top .title {
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+
+        select {
+            height: 30px;
+            border-radius: 5px;
+            background-color: white;
+            min-width: 100px;
+            padding-left: 5px;
+            padding-right: 5px;
+            font-size: 0.7rem;
+            border: solid rgb(203, 203, 203) 1px;
+        }
+
+        .inventory-list-header {
+            margin-top: 15px;
+            display: grid;
+            grid-template-columns: 0.5fr 0.75fr 1.3fr 2.4fr 2.2fr 1.3fr 1.05fr 1fr 1fr 1fr;
+            font-size: 0.8rem;
+            background-color: #F5F5F5;
+            height: 40px;
+            padding-left: 15px;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            border: solid 1.2px rgba(114, 114, 114, 0.067);
+        }
+
+        .inventory-list-header> div {
+            display: flex;
+            align-items: center;
+            border-right: solid 1.2px rgba(114, 114, 114, 0.067);
+            padding-left: 8px;
+        }
+
+        .inventory-item {
+            display: grid;
+            grid-template-columns: 0.5fr 0.75fr 1.3fr 2.4fr 2.2fr 1.3fr 1.05fr 1fr 1fr 1fr;
+            font-size: 0.8rem;
+            height: 40px;
+            padding-left: 15px;
+            background-color: white;
+            border-bottom: solid 1.2px rgba(136, 136, 136, 0.067);
+            cursor: pointer;
+            transition: all 0.1s ease-in;
+        }
+
+        .inventory-item:hover{
+            background-color: rgba(206, 206, 206, 0.271);
+        }
+        .inventory-item:last-child{
+            border-bottom: none;
+        }
+
+        .inventory-item > div {
+            display: flex;
+            align-items: center;
+            white-space: nowrap;       /* Prevents line break */
+            overflow: hidden;          /* Hides overflow content */
+            text-overflow: ellipsis; 
+            padding-left: 8px;
+        }
+        
+        .inventory-item  img {
+            height: 25px;
+            width: 25px;
+            object-fit: cover;
+        }
+}
 
 </style>
 
