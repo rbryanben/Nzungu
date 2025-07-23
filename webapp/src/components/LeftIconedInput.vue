@@ -1,47 +1,74 @@
 <template>
     <div class="wrapper">
-        <div class="input-title">
-            {{title}}
-        </div>
         <div class="input-wrapper">
-            <input required :class="{'error' : inputError }" :placeholder="placeholder" v-model="value" @input="onTextChanged" :type="type">
+            <img src="/svg/search.svg" alt="">
+            <input required :class="{'error' : inputError }" :placeholder="hint" v-model="value" @input="onTextChanged" :type="type">
         </div>
     </div>
 </template>
 
 <style lang="css" scoped>
 
-    .input-title {
-        font-size: 0.9rem;
-        color: rgb(46, 46, 46);
-    }
-
-    .input-wrapper {
-        margin-top: 5px;
+    .wrapper {
+        position: relative;
     }
 
     input {
         border: none;
-        min-height: 30px;
-        min-width: 300px;
+        min-height: 35px;
+        min-width: 600px;
         outline: solid 1.8px rgba(128, 128, 128, 0.181);
         background-color: rgba(163, 163, 163, 0.084);
-        border-radius: 5px;
-        padding-left: 8px;
+        border-radius: 10px;
+        padding-left: 30px;
+        font-size: 0.9rem;
         transition: all 0.1s ease-in;
+        color: rgb(32, 32, 32);
     }
 
     input:focus {
         outline: solid 1.8px rgba(243, 138, 27, 0.86);
         background-color: white;
+        min-width: 600px;
+    }
+
+    input:focus~img {
+        opacity: 0.2;
     }
 
     input:valid {
         background-color: white;
+        min-width: 600px;
     }
 
     input.error {
-        outline: solid 1.8px rgb(193, 0, 0);
+        outline: solid 1.5px rgb(193, 0, 0);
+    }
+
+    img {
+        height: 15px;
+        width: 15px;
+        opacity: 0.7;
+        position: absolute;
+        left: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        object-fit: contain;
+    }
+
+    @media only screen and (max-width: 1200px) {
+        input {
+            border: none;
+            min-height: 35px;
+            min-width: 350px;
+            outline: solid 1.8px rgba(128, 128, 128, 0.181);
+            background-color: rgba(163, 163, 163, 0.084);
+            border-radius: 10px;
+            padding-left: 30px;
+            font-size: 0.9rem;
+            transition: all 0.1s ease-in;
+            color: rgb(32, 32, 32);
+        }
     }
 </style>
 
@@ -49,7 +76,7 @@
     import validators from "../shared/validators"
 
     export default {
-        name: "TitledInput",
+        name: "LeftIconedInput",
         data(){
             return {
                 value: ""
@@ -81,10 +108,6 @@
             type : {
                 type: String,
                 default: "text"
-            },
-            placeholder : {
-                type: String,
-                default: ""
             },
             validator : {
                 type: String,
