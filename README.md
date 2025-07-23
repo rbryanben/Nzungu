@@ -1,34 +1,73 @@
 # Open Source Point of Sale (POS) System
 
-Welcome to our free and open-source Point of Sale (POS) system, designed to provide a seamless and efficient retail experience. Built with Django and Vue.js, this application offers a robust, real-time, multi-tenant architecture, ensuring scalability and adaptability for businesses of all sizes.
+Welcome to our **free and open-source Point of Sale (POS)** system, designed to deliver a seamless and efficient retail experience. This real-time, multi-tenant application is built with **Django** and **Vue.js**, providing scalability, security, and performance for businesses of all sizes.
 
-# UI/UX
-<img src="./idea/ui.png">
+## 🌐 Project Structure
 
-## Key Features
+This repository consists of two main directories:
 
-- **Multi-Tenant Support**: Manage multiple stores or franchises effortlessly within a single platform, with each tenant's data securely isolated to maintain privacy and integrity.
+- `backend/` – Django-based API and business logic (runs on **port 7731**).
+- `webapp/` – Vue.js frontend (can run on **any available port**).
 
-- **Real-Time Operations**: Experience instantaneous transaction processing and inventory updates, enhancing operational efficiency and customer satisfaction.
+## ✨ Key Features
 
-- **Fiscalized Receipts**: Generate compliant fiscal receipts automatically, simplifying tax processes and ensuring adherence to regional regulations.
+- **Multi-Tenant Support**: Manage multiple stores or franchises from a single system. Each tenant’s data is isolated and secured.
+- **Real-Time Operations**: Live transaction processing and inventory synchronization.
+- **Fiscalized Receipts**: Generate compliant receipts to meet regional fiscal requirements.
+- **Elegant UI/UX**: Clean, responsive, and intuitive design that minimizes training and maximizes productivity.
+- **Double Entry Accounting**: Full support for double entry bookkeeping — every transaction has a corresponding debit and credit.
+- **Integrated Financial Reports**: Automatically generate key financial reports such as income statements, trial balances, and ledgers.
+- **Modular General Ledger System**:
+  - Business GL accounts
+  - Multi-inventory GLs
+  - Cash-in-hand GLs
+  - Bank and POS transaction GLs
+  - Cash/bank payment records
 
-- **Elegant User Interface**: Navigate through a clean, intuitive, and beautifully designed UI that prioritizes user experience, reducing training time and improving daily operations.
+## 🛠 Technical Highlights
 
-## Technical Highlights
+- **Django Backend**:
+  - RESTful API
+  - PostgreSQL (recommended) or any other supported DB
+  - Authentication and multi-tenancy middleware
+  - Financial report generation
+- **Vue.js Frontend**:
+  - Modern SPA (Single Page Application)
+  - State management with Vuex
+  - Responsive layout compatible with mobile/tablet/desktop
 
-- **Django Backend**: Leverages Django's robust framework to provide a secure and scalable backend infrastructure.
+## 🖥 UI Preview
 
-- **Vue.js Frontend**: Utilizes Vue.js to deliver a dynamic and responsive user interface, ensuring a smooth user experience across devices.
+![UI Screenshot](./idea/ui.png)
 
-- **Open Source**: Fully open-source, inviting collaboration and customization to meet specific business needs.
+## 👥 Contributors
 
-## Getting Started
+| Name                      | Role                 |
+|---------------------------|----------------------|
+| Glen Chiridza             | Backend Developer    |
+| Ryan Ben                  | Fullstack Developer  |
+| Lameck Matenga            | Testing              |
+| Munyaradzi Chigangawa     | Frontend Developer   |
+| Kundai "Stcheriz" Kachale | Accountant           |
+| Alfred Gomo               | Accountant           |
 
-To get started with this POS system, follow these steps:
+## 📦 Getting Started
 
-1. **Clone the Repository**:
+### 1. Clone the Repository
 
-   ```bash
-   git clone https://github.com/yourusername/pos-system.git
-   cd pos-system
+```bash
+git clone https://github.com/yourusername/pos-system.git
+cd pos-system
+cd backend
+python -m venv venv
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+pip install -r requirements.txt
+
+# Set environment variables or create a .env file
+
+# Apply migrations and run on port 7731
+python manage.py migrate
+python manage.py runserver 0.0.0.0:7731
+cd webapp
+npm install
+npm run serve
