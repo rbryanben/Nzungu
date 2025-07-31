@@ -13,3 +13,11 @@ export function getFilters(callback){
         callback(true,DUMMY_FILTERS)
     },500)
 }
+
+export function generateReference(callback){
+    setTimeout(()=>{
+        callback(true,{
+            reference : "7549daf3"
+        })
+    })
+}

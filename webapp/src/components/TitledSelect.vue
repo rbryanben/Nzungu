@@ -1,33 +1,37 @@
 <template>
     <div class="wrapper">
-        <div class="input-title">
+        <div class="select-title">
             {{title}}
         </div>
-        <div class="input-wrapper">
-            <input 
+        <div class="select-wrapper">
+            <select 
                 required 
-                :class="{'error' : inputError, 'fill' : fill}" 
+                :class="{'error' : selectError, 'fill' : fill}" 
                 :disabled="!editable" 
                 :placeholder="placeholder" 
-                v-model="value" 
-                @input="onTextChanged" 
-                :type="type">
+                v-model="value_" 
+                @select="onTextChanged">
+                <option 
+                    v-for="option in options" 
+                    :key="option.ref" 
+                    :value="option.ref">{{option.name}}</option>
+            </select>
         </div>
     </div>
 </template>
 
 <style lang="css" scoped>
 
-    .input-title {
+    .select-title {
         font-size: 0.9rem;
         color: rgb(46, 46, 46);
     }
 
-    .input-wrapper {
+    .select-wrapper {
         margin-top: 5px;
     }
 
-    input {
+    select {
         border: none;
         min-height: 30px;
         min-width: 300px;
@@ -38,20 +42,20 @@
         transition: all 0.1s ease-in;
     }
 
-    input.fill {
+    select.fill {
         width: calc(100% - 9px);
     }
 
-    input:focus {
+    select:focus {
         outline: solid 1.8px rgba(243, 138, 27, 0.86);
         background-color: white;
     }
 
-    input:valid {
+    select:valid {
         background-color: white;
     }
 
-    input.error {
+    select.error {
         outline: solid 1.8px rgb(193, 0, 0);
     }
 </style>
@@ -60,25 +64,22 @@
     import validators from "../shared/validators"
 
     export default {
-        name: "TitledInput",
+        name: "TitledSelect",
         data(){
             return {
-                value: ""
+                value_: this.value
             }
         },
         methods: {
             onTextChanged(){
                 this.$emit("on-text-changed",this.value)
-            },
-            setText(text){
-                this.value = text
-            }
+            }  
         },
         mounted(){
            
         },
         computed: {
-            inputError(){
+            selectError(){
                 if (this.value == "") return false
                 return !validators[this.validator](this.value)
             }
@@ -86,15 +87,15 @@
         props: {
             title : {
                 type: String,
-                default: "TitledInput"
+                default: "TitledSelect"
+            },
+            value : {
+                type: String,
+                default: ""
             },
             hint : {
                 type: String,
                 default: ""
-            },
-            type : {
-                type: String,
-                default: "text"
             },
             placeholder : {
                 type: String,
@@ -111,6 +112,10 @@
             editable: {
                 type: Boolean,
                 default: true
+            },
+            options: {
+                type: Array,
+                default: []
             }
         }
     }
