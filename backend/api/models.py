@@ -34,14 +34,3 @@ class User(models.Model):
     @staticmethod
     def getUserByUsername(username : str ) -> 'User' :
         return User.objects.filter(username=username).first()
-    
-class Upload(models.Model):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=256)
-    ref = models.CharField(max_length=256,unique=True)
-    url = models.CharField(max_length=512)
-    updated = models.DateTimeField(auto_now=True)
-    
-    def __str__(self):
-        return self.ref
-        

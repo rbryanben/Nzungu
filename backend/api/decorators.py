@@ -5,6 +5,7 @@ import json
 from typing import Dict
 from datetime import datetime, timedelta
 from .models import User
+from shared_models import models as shared_models
 
 # AWS paramets 
 reagion = os.getenv('AWS_REAGION')
@@ -108,3 +109,24 @@ def json_required(keys={}):
         
         return inner
     return decorator
+
+def requires_permissions(permissions=[]):
+    def decorator(func,required_permissions=permissions):
+        def inner(request, required_permissions=required_permissions):
+            if not request.user:
+                return JsonResponse({
+                    "error" : "view configuration error",
+                    "timestamp" : datetime.now().isoformat()
+                },status=500)
+                
+            for permission in required_permissions:
+                if not shared_models.Permission.has_permission(request.user,permission):
+                    return JsonResponse({
+                        "error" : f"User has missing permission '{permission}'",
+                        "timestamp" : datetime.now().isoformat()
+                    },status=403)
+                    
+            return func(request)
+        return inner
+    return decorator
+                

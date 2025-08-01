@@ -6,8 +6,9 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 import boto3
 import logging
-from .decorators import authorization_required, json_required
-from . import models
+from .decorators import authorization_required, json_required, requires_permissions
+from . import models as api_models
+from shared_models import models as shared_models
 
 # Logging configuration
 logging.basicConfig(
@@ -40,7 +41,7 @@ def authenticate(request):
     # Get the username and password
     username = request.json_body['username']
     password = request.json_body['password']
-    user = models.User.getUserByUsername(username)
+    user = api_models.User.getUserByUsername(username)
     
     # check if the credentials are correct
     if not user or not user.check_password(password):
@@ -98,6 +99,7 @@ def authenticate(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 @authorization_required
+@requires_permissions(['upload-file'])
 def file_upload(request):
     # Request reference 
     ref = str(uuid4()) 
@@ -145,7 +147,7 @@ def file_upload(request):
     file_url = f"https://{FILE_S3_BUCKET}.s3.amazonaws.com/{key}"
     
     # Store the file object
-    models.Upload(
+    shared_models.Upload(
         name = filename,
         ref = ref,
         url = file_url
@@ -158,3 +160,121 @@ def file_upload(request):
         "timestamp" : datetime.now().isoformat()
     })
     
+    
+@csrf_exempt
+@require_http_methods(['GET'])
+@authorization_required
+def getProducts(request):
+    # Request reference
+    ref = str(uuid4())
+    
+    # Products 
+    products = shared_models.Product.objects.select_related(
+            'category',
+            'image_uploaded',
+            'product_stock_status_filter'
+        ).order_by('-id')
+    
+    # Serialize
+    s_products = [product.toDict() for product in products]
+    
+    # Return the response 
+    return JsonResponse({
+        "ref" : ref,
+        "count" : len(s_products),
+        "products" : s_products,
+        "timestamp" : datetime.now().isoformat()
+    }) 
+    
+@csrf_exempt
+@require_http_methods(['GET'])
+@authorization_required
+def getCategories(request):
+    # Reference
+    ref = str(uuid4())
+    
+    # Category 
+    categories = shared_models.ProductCategory.objects.all()
+    
+    # Serialize categories 
+    s_categories = [category.toDict() for category in categories]
+    
+    # Response 
+    return JsonResponse({
+        "ref" : ref,
+        "count" : len(s_categories),
+        "categories" : s_categories,
+        "timestamp" : datetime.now().isoformat()
+    })
+
+@csrf_exempt
+@require_http_methods(['GET'])
+@authorization_required
+def getProductStockFilters(request):
+    # Reference
+    ref = str(uuid4())
+    
+    # Filter 
+    filters = shared_models.ProductStockStatusFilter.objects.all()
+    
+    # Serialize filters 
+    s_filters = [filter.toDict() for filter in filters]
+    
+    # Response 
+    return JsonResponse({
+        "ref" : ref,
+        "count" : len(s_filters),
+        "filters" : s_filters,
+        "timestamp" : datetime.now().isoformat()
+    })
+    
+@csrf_exempt
+@require_http_methods(["POST"])
+@json_required(keys={"reference","name","description","category","price_usd","price_zwg","reorder_point","image_upload","expiry_day_buffer"})
+@authorization_required
+@requires_permissions(['create-product'])
+def createProduct(request):
+    # Ref 
+    ref = str(uuid4())
+    json_body = request.json_body
+    
+    # Get the category 
+    category = shared_models.ProductCategory.getUsingRef(json_body['category'])
+    image_uploaded = shared_models.Upload.getUsingRef(json_body['image_upload'])
+    
+    # check category
+    if not category:
+        return JsonResponse({
+            "error" : "category with the given reference was not found",
+            "timestamp" : datetime.now().isoformat()
+        },status=400)
+    
+    # image upload
+    if not image_uploaded:
+        return JsonResponse({
+            "error" : "image_upload with the given reference was not found",
+            "timestamp" : datetime.now().isoformat()
+        },status=400)
+        
+    
+    # Create the product
+    product = shared_models.Product(
+        name = json_body['name'],
+        category = category,
+        description = json_body['description'],
+        price_usd = float(json_body['price_usd']),
+        price_zwg = float(json_body['price_usd']),
+        image_uploaded = image_uploaded,
+        reorder_point = float(json_body['reorder_point']),
+        expiry_day_buffer = int(json_body['expiry_day_buffer'])
+    )
+    
+    # Save the product
+    product.save()
+    
+    # Response
+    return JsonResponse({
+        "ref" : product.ref,
+        "product" : product.toDict(),
+        "timestamp" : datetime.now().isoformat()  
+    }) 
