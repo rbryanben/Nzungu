@@ -193,3 +193,5 @@ INFO:django.utils.autoreload:C:\Users\rben\Desktop\Nzungu\backend\api\decorators
 WARNING:django.request:Forbidden: /api/v1/upload
 INFO:django.utils.autoreload:C:\Users\rben\Desktop\Nzungu\backend\api\views.py changed, reloading.
 WARNING:django.request:Forbidden: /api/v1/authenticate
+WARNING:django.request:Unauthorized: /api/v1/upload
+WARNING:django.request:Forbidden: /api/v1/authenticate
