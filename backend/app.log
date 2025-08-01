@@ -195,3 +195,7 @@ INFO:django.utils.autoreload:C:\Users\rben\Desktop\Nzungu\backend\api\views.py c
 WARNING:django.request:Forbidden: /api/v1/authenticate
 WARNING:django.request:Unauthorized: /api/v1/upload
 WARNING:django.request:Forbidden: /api/v1/authenticate
+WARNING:django.request:Forbidden: /api/v1/upload
+WARNING:django.request:Not Found: /favicon.ico
+INFO:django.utils.autoreload:C:\Users\rben\Desktop\Nzungu\backend\api\admin.py changed, reloading.
+INFO:django.utils.autoreload:C:\Users\rben\Desktop\Nzungu\backend\api\models.py changed, reloading.

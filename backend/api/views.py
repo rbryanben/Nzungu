@@ -143,6 +143,13 @@ def file_upload(request):
         
     # Draft the url
     file_url = f"https://{FILE_S3_BUCKET}.s3.amazonaws.com/{key}"
+    
+    # Store the file object
+    models.Upload(
+        name = filename,
+        ref = ref,
+        url = file_url
+    ).save()
         
     return JsonResponse({
         "filename" : filename,
