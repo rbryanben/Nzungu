@@ -305,3 +305,185 @@ WARNING:django.request:Bad Request: /api/v1/create-product
 WARNING:django.request:Forbidden: /api/v1/create-product
 WARNING:django.request:Forbidden: /api/v1/create-product
 WARNING:django.request:Bad Request: /api/v1/create-product
+WARNING:django.request:Method Not Allowed (OPTIONS): /api/v1/upload
+INFO:django.utils.autoreload:C:\Users\rben\Desktop\Nzungu\backend\main\settings.py changed, reloading.
+WARNING:django.request:Unauthorized: /api/v1/upload
+WARNING:django.request:Unauthorized: /api/v1/upload
+WARNING:django.request:Unauthorized: /api/v1/upload
+WARNING:django.request:Bad Request: /api/v1/create-product
+WARNING:django.request:Bad Request: /api/v1/create-product
+WARNING:django.request:Bad Request: /api/v1/create-product
+WARNING:django.request:Not Found: /api/v1/categories
+WARNING:django.request:Bad Request: /api/v1/get-categories
+WARNING:django.request:Bad Request: /api/v1/create-product
+WARNING:django.request:Forbidden: /api/v1/upload
+WARNING:django.request:Forbidden: /api/v1/create-product
+WARNING:django.request:Forbidden: /api/v1/upload
+WARNING:django.request:Bad Request: /api/v1/create-product
+WARNING:django.request:Forbidden: /api/v1/upload
+WARNING:django.request:Bad Request: /api/v1/create-product
+WARNING:django.request:Forbidden: /api/v1/upload
+WARNING:django.request:Bad Request: /api/v1/create-product
+WARNING:django.request:Forbidden: /api/v1/upload
+WARNING:django.request:Forbidden: /api/v1/upload
+WARNING:django.request:Forbidden: /api/v1/create-product
+WARNING:django.request:Forbidden: /api/v1/get-categories
+WARNING:django.request:Forbidden: /api/v1/get-categories
+WARNING:django.request:Bad Request: /api/v1/get-products
+ERROR:django.request:Internal Server Error: /api/v1/get-products
+Traceback (most recent call last):
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\views\decorators\http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\rben\Desktop\Nzungu\backend\api\decorators.py", line 80, in inner
+    return func(request)
+  File "C:\Users\rben\Desktop\Nzungu\backend\api\views.py", line 179, in getProducts
+    s_products = [product.toDict() for product in products]
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\db\models\query.py", line 400, in __iter__
+    self._fetch_all()
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\db\models\query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\db\models\query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\db\models\sql\compiler.py", line 1561, in execute_sql
+    sql, params = self.as_sql()
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\db\models\sql\compiler.py", line 747, in as_sql
+    extra_select, order_by, group_by = self.pre_sql_setup(
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\db\models\sql\compiler.py", line 84, in pre_sql_setup
+    self.setup_query(with_col_aliases=with_col_aliases)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\db\models\sql\compiler.py", line 73, in setup_query
+    self.select, self.klass_info, self.annotation_col_map = self.get_select(
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\db\models\sql\compiler.py", line 279, in get_select
+    related_klass_infos = self.get_related_selections(select, select_mask)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\db\models\sql\compiler.py", line 1379, in get_related_selections
+    raise FieldError(
+django.core.exceptions.FieldError: Invalid field name(s) given in select_related: 'product_stock_status_filter'. Choices are: referencedobject_ptr, category, image_uploaded
+WARNING:django.request:Forbidden: /api/v1/get-categories
+WARNING:django.request:Forbidden: /api/v1/get-products
+WARNING:django.request:Forbidden: /api/v1/get-products
+WARNING:django.request:Forbidden: /api/v1/get-categories
+WARNING:django.request:Forbidden: /api/v1/get-categories
+WARNING:django.request:Forbidden: /api/v1/get-products
+WARNING:django.request:Forbidden: /api/v1/get-categories
+WARNING:django.request:Forbidden: /api/v1/get-products
+WARNING:django.request:Forbidden: /api/v1/get-products
+WARNING:django.request:Forbidden: /api/v1/get-categories
+ERROR:django.request:Internal Server Error: /api/v1/get-products
+Traceback (most recent call last):
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\views\decorators\http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\rben\Desktop\Nzungu\backend\api\decorators.py", line 30, in inner
+    item = dynamo_db.get_item(
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\botocore\client.py", line 601, in _api_call
+    return self._make_api_call(operation_name, kwargs)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\botocore\context.py", line 123, in wrapper
+    return func(*args, **kwargs)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\botocore\client.py", line 1074, in _make_api_call
+    raise error_class(parsed_response, operation_name)
+botocore.exceptions.ClientError: An error occurred (UnrecognizedClientException) when calling the GetItem operation: The security token included in the request is invalid.
+ERROR:django.request:Internal Server Error: /api/v1/get-categories
+Traceback (most recent call last):
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\views\decorators\http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\rben\Desktop\Nzungu\backend\api\decorators.py", line 30, in inner
+    item = dynamo_db.get_item(
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\botocore\client.py", line 601, in _api_call
+    return self._make_api_call(operation_name, kwargs)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\botocore\context.py", line 123, in wrapper
+    return func(*args, **kwargs)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\botocore\client.py", line 1074, in _make_api_call
+    raise error_class(parsed_response, operation_name)
+botocore.exceptions.ClientError: An error occurred (UnrecognizedClientException) when calling the GetItem operation: The security token included in the request is invalid.
+ERROR:django.request:Internal Server Error: /api/v1/get-categories
+Traceback (most recent call last):
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\views\decorators\http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\rben\Desktop\Nzungu\backend\api\decorators.py", line 30, in inner
+    item = dynamo_db.get_item(
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\botocore\client.py", line 601, in _api_call
+    return self._make_api_call(operation_name, kwargs)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\botocore\context.py", line 123, in wrapper
+    return func(*args, **kwargs)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\botocore\client.py", line 1074, in _make_api_call
+    raise error_class(parsed_response, operation_name)
+botocore.exceptions.ClientError: An error occurred (UnrecognizedClientException) when calling the GetItem operation: The security token included in the request is invalid.
+ERROR:django.request:Internal Server Error: /api/v1/get-products
+Traceback (most recent call last):
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\views\decorators\http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\rben\Desktop\Nzungu\backend\api\decorators.py", line 30, in inner
+    item = dynamo_db.get_item(
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\botocore\client.py", line 601, in _api_call
+    return self._make_api_call(operation_name, kwargs)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\botocore\context.py", line 123, in wrapper
+    return func(*args, **kwargs)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\botocore\client.py", line 1074, in _make_api_call
+    raise error_class(parsed_response, operation_name)
+botocore.exceptions.ClientError: An error occurred (UnrecognizedClientException) when calling the GetItem operation: The security token included in the request is invalid.
+ERROR:django.request:Internal Server Error: /api/v1/get-products
+Traceback (most recent call last):
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\views\decorators\http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\rben\Desktop\Nzungu\backend\api\decorators.py", line 30, in inner
+    item = dynamo_db.get_item(
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\botocore\client.py", line 601, in _api_call
+    return self._make_api_call(operation_name, kwargs)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\botocore\context.py", line 123, in wrapper
+    return func(*args, **kwargs)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\botocore\client.py", line 1074, in _make_api_call
+    raise error_class(parsed_response, operation_name)
+botocore.errorfactory.ResourceNotFoundException: An error occurred (ResourceNotFoundException) when calling the GetItem operation: Requested resource not found
+ERROR:django.request:Internal Server Error: /api/v1/get-categories
+Traceback (most recent call last):
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\django\views\decorators\http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\rben\Desktop\Nzungu\backend\api\decorators.py", line 30, in inner
+    item = dynamo_db.get_item(
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\botocore\client.py", line 601, in _api_call
+    return self._make_api_call(operation_name, kwargs)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\botocore\context.py", line 123, in wrapper
+    return func(*args, **kwargs)
+  File "C:\Users\rben\AppData\Local\Programs\Python\Python310\lib\site-packages\botocore\client.py", line 1074, in _make_api_call
+    raise error_class(parsed_response, operation_name)
+botocore.errorfactory.ResourceNotFoundException: An error occurred (ResourceNotFoundException) when calling the GetItem operation: Requested resource not found

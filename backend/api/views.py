@@ -171,8 +171,7 @@ def getProducts(request):
     # Products 
     products = shared_models.Product.objects.select_related(
             'category',
-            'image_uploaded',
-            'product_stock_status_filter'
+            'image_uploaded'
         ).order_by('-id')
     
     # Serialize
