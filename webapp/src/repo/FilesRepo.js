@@ -1,6 +1,6 @@
 import { ENDPOINTS } from "@/main";
 import axios from "axios";
-import getAuthorizationToken from "./AuthorizationRepo";
+import {getAuthorizationToken} from "./AuthorizationRepo";
 
 // Routes 
 const ROUTE_FILE_UPLOAD = '/api/v1/upload'

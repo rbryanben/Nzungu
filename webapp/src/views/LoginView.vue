@@ -51,6 +51,9 @@
     import TitledInput from "../components/TitledInput";
     import PlainButton from "../components/PlainButton";
     import validators from "../shared/validators"
+    import { r_authenticate } from "@/repo/AuthorizationRepo";
+import { notify_failed } from "@/utils/notifications";
+import { handleAxiosError } from "@/utils/common";
 
     export default {
         name: 'LoginView',
@@ -76,8 +79,34 @@
             }
         },
         methods: {
+            onLoginResult(success,payload){
+
+                // Failed login
+                if (!success){
+                    
+                    // stop submitting 
+                    this.submitting = false
+
+                    // handle common error 
+                    handleAxiosError(payload,{
+                        onUnauthorized: (err)=>{
+                            notify_failed('Invalid username or password')
+                        }
+                    })
+
+                    return
+                }
+
+                // Success then write authorization token to local storage 
+                localStorage.setItem('authorization',payload.token)
+                this.$router.replace({ name: 'sales' });
+            },
             onLoginClicked(e){
+                // Start submiting
                 this.submitting = true
+
+                // sign in 
+                r_authenticate(this.credentials,this.onLoginResult)
             },
             formChange(key,e){
                 this.credentials[key] = e

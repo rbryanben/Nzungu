@@ -1,7 +1,7 @@
 import axios from "axios"
 import {ENDPOINTS} from "../main.js"
 import {DUMMY_PRODUCTS,DUMMY_FILTERS} from "./DummyData.js"
-import getAuthorizationToken from "./AuthorizationRepo.js"
+import {getAuthorizationToken} from "./AuthorizationRepo.js"
 
 const ROUTE_CREATE_PRODUCT = '/api/v1/create-product'
 

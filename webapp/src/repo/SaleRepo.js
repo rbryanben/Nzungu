@@ -2,7 +2,7 @@ import axios from "axios"
 import {ENDPOINTS} from "../main.js"
 import {DUMMY_PRODUCTS,DUMMY_CATEGORIES} from "./DummyData.js"
 import { generateUUID } from "@/utils/common.js"
-import getAuthorizationToken from "./AuthorizationRepo.js"
+import {getAuthorizationToken} from "./AuthorizationRepo.js"
 
 const ROUTE_COMPLETE_CART = "/api/v1/complete-cart"
 const ROUTE_GET_CATEGORIES = '/api/v1/get-categories'
