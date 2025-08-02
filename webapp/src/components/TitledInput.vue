@@ -11,6 +11,7 @@
                 :placeholder="placeholder" 
                 v-model="value" 
                 @input="onTextChanged" 
+                @change="onChange"
                 :type="type">
         </div>
     </div>
@@ -69,6 +70,9 @@
         methods: {
             onTextChanged(){
                 this.$emit("on-text-changed",this.value)
+            },
+            onChange(event){
+                this.$emit('on-change',event)
             },
             setText(text){
                 this.value = text

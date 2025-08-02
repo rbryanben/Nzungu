@@ -6,11 +6,11 @@
         <div class="select-wrapper">
             <select 
                 required 
-                :class="{'error' : selectError, 'fill' : fill}" 
+                :class="{'fill' : fill}" 
                 :disabled="!editable" 
                 :placeholder="placeholder" 
-                v-model="value_" 
-                @select="onTextChanged">
+                v-model="value" 
+                @change="onTextChanged">
                 <option 
                     v-for="option in options" 
                     :key="option.ref" 
@@ -67,7 +67,7 @@
         name: "TitledSelect",
         data(){
             return {
-                value_: this.value
+                value: "" 
             }
         },
         methods: {
@@ -78,20 +78,10 @@
         mounted(){
            
         },
-        computed: {
-            selectError(){
-                if (this.value == "") return false
-                return !validators[this.validator](this.value)
-            }
-        },
         props: {
             title : {
                 type: String,
                 default: "TitledSelect"
-            },
-            value : {
-                type: String,
-                default: ""
             },
             hint : {
                 type: String,
@@ -100,10 +90,6 @@
             placeholder : {
                 type: String,
                 default: ""
-            },
-            validator : {
-                type: String,
-                default: 'username'
             },
             fill: {
                 type: Boolean,

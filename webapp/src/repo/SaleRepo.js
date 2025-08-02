@@ -2,17 +2,28 @@ import axios from "axios"
 import {ENDPOINTS} from "../main.js"
 import {DUMMY_PRODUCTS,DUMMY_CATEGORIES} from "./DummyData.js"
 import { generateUUID } from "@/utils/common.js"
+import getAuthorizationToken from "./AuthorizationRepo.js"
 
 const ROUTE_COMPLETE_CART = "/api/v1/complete-cart"
+const ROUTE_GET_CATEGORIES = '/api/v1/get-categories'
+const ROUTE_GET_PRODUCTS = '/api/v1/get-products'
 const LOCAL_STORE_KEY = "LOCAL_SALES_CACHE"
 
 /*
     Fetches products from backend 
 */
 export function getAllProducts(callback){
-    setTimeout(()=>{
-        callback(true,DUMMY_PRODUCTS)
-    },1000)
+    axios.get(
+        ENDPOINTS.BASE_URL + ROUTE_GET_PRODUCTS,
+        {
+            headers : {
+                'Authorization' : getAuthorizationToken()
+            }
+        }
+    )
+    .then(res => res.data)
+    .then(data => callback(true,data))
+    .catch(err => callback(false,err))
 }
 
 
@@ -20,9 +31,17 @@ export function getAllProducts(callback){
     Fetches categories from backend
 */
 export function getAllCategories(callback){
-    setTimeout(()=>{
-        callback(true,DUMMY_CATEGORIES)
-    },800)
+    axios.get(
+        ENDPOINTS.BASE_URL + ROUTE_GET_CATEGORIES,
+        {
+            headers : {
+                'Authorization' : getAuthorizationToken()
+            }
+        }
+    )
+    .then(res => res.data)
+    .then(data => callback(true,data))
+    .catch(err => callback(false,err))
 }
 
 function writeToLocalStore(sale){

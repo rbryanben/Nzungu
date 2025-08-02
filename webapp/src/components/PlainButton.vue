@@ -27,7 +27,15 @@
 
 
     .wrapper.orange {
-        background-color: rgba(243, 138, 27, 0.86);
+        background-color: rgba(217, 143, 64, 0.86);
+    }
+
+    .wrapper.warn {
+        background-color: rgba(243, 175, 27, 0.86);
+    }
+
+    .wrapper {
+        background-color: rgba(62, 118, 67, 0.86);
     }
 
     .wrapper.disabled {

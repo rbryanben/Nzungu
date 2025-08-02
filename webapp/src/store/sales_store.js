@@ -31,7 +31,7 @@ export default {
             }
 
             // Set the products  
-            commit('setProducts',payload)
+            commit('setProducts',payload.products)
         }
 
         // Fetch products 
@@ -48,7 +48,7 @@ export default {
             }
 
             // Set the products  
-            commit('setCategories',payload)
+            commit('setCategories',payload.categories)
         }
 
         // Fetch categories
