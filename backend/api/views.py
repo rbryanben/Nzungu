@@ -144,7 +144,7 @@ def file_upload(request):
         })
         
     # Draft the url
-    file_url = f"https://{FILE_S3_BUCKET}.s3.amazonaws.com/{key}"
+    file_url = f"https://{FILE_S3_BUCKET}.s3.{AWS_REAGION}.amazonaws.com/{key}"
     
     # Store the file object
     shared_models.Upload(

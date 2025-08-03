@@ -12,6 +12,9 @@ class ReferencedObject(models.Model):
         if not self.ref:
             self.ref = str(uuid4())
         return super().save(*args,**kwargs)
+    
+    class Meta:
+        abstract = True
 
 class Upload(models.Model):
     id = models.AutoField(primary_key=True)
@@ -150,4 +153,22 @@ class Permission(models.Model):
             user=user,
             permission=permission
         ).exists()
-    
+        
+        
+class Stock(ReferencedObject):
+    product = models.ForeignKey(Product,on_delete=models.DO_NOTHING,null=True)
+    expires = models.DateField()
+    count = models.IntegerField()
+    user = models.ForeignKey(api_models.User,on_delete=models.DO_NOTHING,null=True)
+    updated = models.DateTimeField(auto_now=True)
+
+
+class ProductSale(ReferencedObject):
+    product = models.ForeignKey(Product,on_delete=models.DO_NOTHING,null=True)
+    count = models.IntegerField()
+    price_usd = models.FloatField()
+    price_zwg = models.FloatField()
+    fetched = models.DateTimeField()
+    commited = models.DateTimeField()
+    teller = models.ForeignKey(api_models.User,on_delete=models.DO_NOTHING,null=True)
+    last_updated = models.DateTimeField(auto_now=True)
