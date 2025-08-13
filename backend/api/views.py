@@ -167,6 +167,8 @@ def file_upload(request):
 def getProducts(request):
     # Request reference
     ref = str(uuid4())
+    request_time = datetime.now().isoformat()
+    
     
     # Products 
     products = shared_models.Product.objects.select_related(
@@ -182,7 +184,7 @@ def getProducts(request):
         "ref" : ref,
         "count" : len(s_products),
         "products" : s_products,
-        "timestamp" : datetime.now().isoformat()
+        "timestamp" : request_time
     }) 
     
 @csrf_exempt
@@ -236,6 +238,7 @@ def createProduct(request):
     # Ref 
     ref = str(uuid4())
     json_body = request.json_body
+    request_time = datetime.now().isoformat()
     
     # Get the category 
     category = shared_models.ProductCategory.getUsingRef(json_body['category'])
@@ -245,14 +248,16 @@ def createProduct(request):
     if not category:
         return JsonResponse({
             "error" : "category with the given reference was not found",
-            "timestamp" : datetime.now().isoformat()
+            "timestamp" : datetime.now().isoformat(),
+            "ref" : ref
         },status=400)
     
     # image upload
     if not image_uploaded:
         return JsonResponse({
             "error" : "image_upload with the given reference was not found",
-            "timestamp" : datetime.now().isoformat()
+            "timestamp" : datetime.now().isoformat(),
+            "ref" : ref
         },status=400)
         
     
@@ -262,7 +267,7 @@ def createProduct(request):
         category = category,
         description = json_body['description'],
         price_usd = float(json_body['price_usd']),
-        price_zwg = float(json_body['price_usd']),
+        price_zwg = float(json_body['price_zwg']),
         image_uploaded = image_uploaded,
         reorder_point = float(json_body['reorder_point']),
         expiry_day_buffer = int(json_body['expiry_day_buffer'])
@@ -275,5 +280,88 @@ def createProduct(request):
     return JsonResponse({
         "ref" : product.ref,
         "product" : product.toDict(),
-        "timestamp" : datetime.now().isoformat()  
+        "timestamp" : request_time
     }) 
+    
+@csrf_exempt
+@require_http_methods(['POST'])
+@json_required(keys={'cart_items','currency','idempotence_key','payment_option','commited'})
+@authorization_required
+@requires_permissions(permissions=['commit-sale'])
+def completeCart(request):
+    # ref 
+    ref = str(uuid4())
+    
+    # Json body
+    json_body = request.json_body
+    
+    # Parameters 
+    cart_items = json_body['cart_items']
+    currency = json_body['currency']
+    idempotence_key = json_body['idempotence_key']
+    payment_option = json_body['payment_option']
+    commited = json_body['commited']
+    
+    # Iterate through the cart and create the related object
+    cart_sales = [] 
+    for item in cart_items:
+        cart_sales.append(
+            shared_models.ProductSale(
+                product = item['ref'],
+                count = 1,
+                price_usd = item['price_usd'],
+                price_zwg = item['price_zwg'],
+                fetched = item['fetched'],
+                teller = request.user,
+                cart = idempotence_key,
+                currency = currency,
+                commited = commited,
+                payment_option = payment_option
+            )
+        )
+        
+    # Bulk save 
+    shared_models.ProductSale.objects.bulk_create(cart_sales)
+        
+    return JsonResponse({
+        "ref" : ref,
+        "timestamp" : datetime.now().isoformat(),
+        "idempotence_key" : idempotence_key,
+        "cart_count" : len(cart_items)
+    })
+    
+@csrf_exempt
+@require_http_methods(['GET'])
+@authorization_required
+def getProductUpdates(request):
+    # Ref 
+    ref = str(uuid4())
+    
+    # Check for the required keys 
+    if 'last-fetched-date-iso' not in request.GET:
+        return JsonResponse({
+            "ref" : ref,
+            "error" : "key 'last-fetched-date-iso' is required in GET parameters",
+            "timestamp" : datetime.now().isoformat()
+        },status=400)
+    
+    # Parse the iso date 
+    try:
+        lastFetchedDateIso = datetime.fromisoformat(request.GET['last-fetched-date-iso'])
+    except:
+        return JsonResponse({
+            "ref" : ref,
+            "error" : "Bad 'last-fetched-date-iso' attribute",
+            "timestamp" : datetime.now().isoformat()
+        },status=400)
+        
+    # Fetch any product that was updated after the given iso time stamp
+    products = shared_models.Product.getProductsUpdatedAfter(lastFetchedDateIso)
+    
+    # Return the products 
+    return JsonResponse({
+        'ref' : ref,
+        'products' : products,
+        'count' : len(products),
+        'timestamp' : datetime.now().isoformat()
+    },safe=False)

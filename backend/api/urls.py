@@ -8,5 +8,7 @@ urlpatterns = [
     path('v1/get-products',views.getProducts,name='get-products'),
     path('v1/get-categories',views.getCategories,name='get-categories'),
     path('v1/get-products-stock-filters',views.getProductStockFilters,name='get-product-stock-filters'),
-    path('v1/create-product',view=views.createProduct,name='create-product')
+    path('v1/create-product',view=views.createProduct,name='create-product'),
+    path('v1/complete-cart',view=views.completeCart,name='complete-cart'),
+    path('v1/get-product-updates',view=views.getProductUpdates,name='get-product-updates')
 ]

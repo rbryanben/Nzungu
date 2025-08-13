@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-a8f&jy+ebd!esm5sgw&atfodontem01it0(*6$f=(80+m)=v8$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -111,7 +111,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Harare' 
 
 USE_I18N = True
 
@@ -130,6 +130,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:8080',
-    'http://localhost:8080'
+    'http://localhost:8080',
+    "http://192.168.0.186:8080"
 ]
 

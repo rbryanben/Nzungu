@@ -3,6 +3,9 @@ from datetime import datetime
 from uuid import uuid4
 import os
 from api import models as api_models
+from django.db.models import Sum
+from django.db.models import Q
+from typing import List
 
 class ReferencedObject(models.Model):
     id = models.AutoField(primary_key=True)
@@ -98,11 +101,11 @@ class Product(ReferencedObject):
     
     @property
     def sold(self):
-        return -1
+        return ProductSale.countSold(self.ref)
     
     @property
     def in_stock(self):
-        return -1
+        return Stock.countStock(self) - self.sold
     
     @property
     def filter(self):
@@ -137,6 +140,26 @@ class Product(ReferencedObject):
             "expiry_day_buffer" : self.expiry_day_buffer,
             "filter" : self.filter
         }
+    
+    @staticmethod
+    def getUsingRef(ref : str):
+        return Product.objects.filter(ref=ref).first()
+
+    @staticmethod
+    def getProductsUpdatedAfter(datetime_ : datetime) -> List['Product']:
+        
+        # Get the unique ids
+        stock_products = Stock.objects.filter(updated__gt=datetime_).values_list('product__ref', flat=True)
+        sold_products = ProductSale.objects.filter(last_updated__gt=datetime_).values_list('product', flat=True)
+        
+        # Get the products
+        updated_products = Product.objects.filter(
+            Q(last_updated__gt=datetime_) |
+            Q(ref__in=stock_products) |
+            Q(ref__in=sold_products)   
+        ).distinct()
+        
+        return [product.toDict() for product in updated_products]
         
 class Permission(models.Model):
     id = models.AutoField(primary_key=True)
@@ -162,9 +185,17 @@ class Stock(ReferencedObject):
     user = models.ForeignKey(api_models.User,on_delete=models.DO_NOTHING,null=True)
     updated = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return f"{'_'.join(self.product.name.lower().split(' '))}-{self.updated}"
+    
+    @staticmethod
+    def countStock(product: Product) -> int:
+        result = Stock.objects.filter(product=product).aggregate(total=Sum('count'))
+        return result['total'] or 0
+        
 
 class ProductSale(ReferencedObject):
-    product = models.ForeignKey(Product,on_delete=models.DO_NOTHING,null=True)
+    product = models.CharField(max_length=256)
     count = models.IntegerField()
     price_usd = models.FloatField()
     price_zwg = models.FloatField()
@@ -172,3 +203,20 @@ class ProductSale(ReferencedObject):
     commited = models.DateTimeField()
     teller = models.ForeignKey(api_models.User,on_delete=models.DO_NOTHING,null=True)
     last_updated = models.DateTimeField(auto_now=True)
+    cart = models.CharField(max_length=128,null=True)
+    currency = models.CharField(max_length=16)
+    payment_option = models.CharField(max_length=16)
+    
+    @property
+    def product_name(self):
+        product = Product.getUsingRef(ref=self.product)
+        return product.name if product else 'deleted-product'
+    
+    @staticmethod
+    def countSold(product_ref) -> int:
+        result = ProductSale.objects.filter(product=product_ref).aggregate(total=Sum('count'))
+        return result['total'] or 0
+    
+    
+    def __str__(self):
+        return f"{self.cart} : {self.product_name}"
