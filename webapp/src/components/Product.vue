@@ -1,5 +1,5 @@
 <template>
-    <div class="wrapper">
+    <div class="wrapper" :class="{'out-of-stock' : stock <= 0}">
         <div class="top">
             <div class="left">
                 <img :src="image" alt="">
@@ -9,8 +9,11 @@
                 <div class="description">
                     {{ description}}
                 </div>
-                <div class="stock-count">
+                <div v-if="stock >= 1" class="stock-count">
                     {{ stock }} Items in stock
+                </div>
+                <div v-else style="color:red;" class="stock-count">
+                    Out of stock
                 </div>
             </div>
         </div>
@@ -40,6 +43,11 @@
         background-color: white;
         width: 305px;
         max-width: 305px;
+    }
+
+    .wrapper.out-of-stock{
+        pointer-events: none;
+        opacity: 0.9;
     }
 
     .button-effect::after {
@@ -247,6 +255,10 @@
         name : "Product",
         methods: {
             increment(count=1){
+                if (this.stock <= 0){
+                    return 
+                }
+
                 // Emit
                 this.$emit('on_update_product',count)
             }

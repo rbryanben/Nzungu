@@ -68,23 +68,29 @@ function writeToLocalStore(sale){
             "total_products" : integer
         }
 */
-export function completeCart(callback,cart_productModelList,currency,idempotence_key){
+export function completeCart(callback,cart_productModelList,currency,idempotence_key,payment_option='CASH'){
     // Payload 
     let payload = {
         cart_items : cart_productModelList.map(item => item.toJson()),
         teller : "ryan-ben",
         shop : "southlea-park-01",
         currency: currency,
-        idempotence_key: idempotence_key
+        idempotence_key: idempotence_key,
+        payment_option: payment_option,
+        commited : new Date().toISOString()
     }
 
     // Set the payload
-    axios.post(ENDPOINTS.BASE_URL + ROUTE_COMPLETE_CART,payload)
-        .then(res => res.data)
-        .then(res => callback(true,res))
-        .catch(err => {
-            // store localy 
-            writeToLocalStore(payload)
-            callback(true,err)
-        })
+    axios.post(ENDPOINTS.BASE_URL + ROUTE_COMPLETE_CART,payload,{
+        headers: {
+            'Authorization' : getAuthorizationToken()
+        }
+    })
+    .then(res => res.data)
+    .then(res => callback(true,res))
+    .catch(err => {
+        // store localy 
+        writeToLocalStore(payload)
+        callback(true,err)
+    })
 }

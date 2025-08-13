@@ -44,7 +44,7 @@
                         <Product
                             :name="product.name"
                             :description="product.description"
-                            :stock="product.stock_count"
+                            :stock="product.in_stock"
                             :product_ref="product.ref"
                             :price="this.$store.state.currency === 'ZWG' ? product.price_zwg : product.price_usd"
                             :image="product.image_url"
@@ -253,7 +253,7 @@ import { generateUUID } from "@/utils/common";
                 this.submitting_cart = false
                 
                 // log the event
-                alert('Cart Completed')
+                console.log(payload)
             },
             onCompleteCart(){
                 // Show progress 
