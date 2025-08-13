@@ -1,0 +1,17 @@
+version: "3.8"
+services: 
+    live-updates-service:
+        image: 944752351692.dkr.ecr.eu-west-1.amazonaws.com/live-updates-nzungu
+        ports:
+          - 8000:3412
+        restart: always
+        volumes:
+          - /logs/live-updates-service:/app/logs
+        environment:
+          AWS_REAGION: ${AWS_REAGION}
+          AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+          AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+          DYNAMO_DB_TABLE: ${DYNAMO_DB_TABLE}
+          PORT: 3412
+        
+          
