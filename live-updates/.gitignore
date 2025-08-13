@@ -1,0 +1,7 @@
+node_modules
+app.secrets.json
+logs
+
+.env
+logs/
+**/.env

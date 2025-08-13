@@ -1,0 +1,14 @@
+# ENVIRONMENT
+FROM node:22-alpine
+RUN apk update
+
+# FILES
+WORKDIR /app 
+COPY . .
+RUN mkdir logs
+
+# INSTALL DEPENDENCIES
+RUN npm install
+
+# RUN THE APPLICATION
+CMD node main.js
