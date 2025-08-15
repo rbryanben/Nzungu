@@ -84,13 +84,133 @@
 </style>
 
 <script>
+
+  // Libraries
+  import {io} from "socket.io-client"
+  import { ENDPOINTS } from "@/main"
+  import { getAuthorizationToken } from "@/repo/AuthorizationRepo"
+  import { completeCart } from "@/repo/SaleRepo"
+  import { notify_success } from "@/utils/notifications"
+  import ProductModel from "@/models/ProductModel"
+
   export default {
       name: "SaleView",
+          data(){
+            return {
+                socketioClient : null
+            }
+          },
+          methods: {
+              onSocketConnnect(){
+                 console.log("connected to the socket")
+              },
+              onSocketDisconnected(){
+                 console.log("disconnected to the socket")
+              },
+              onSocketEvent(payload){
+                  // Update products list 
+                  if ('event' in payload && new Set(['product-updated', 'product-stock-updated', 'cart-completed']).has(payload.event)){
+                    // Dispatch the call to update products
+                    this.$store.dispatch('sales/fetchProductUpdates',false)
+                    return
+                  }
+                  
+                  // Product added 
+                  if ('event' in payload && payload.event === 'product-added'){
+                    // Dispatch the call to update products
+                    this.$store.dispatch('sales/fetchProductUpdates',true)  
+                    return
+                  }
+
+              },
+              onSocketConnectionError(error){
+                console.log("socket error",error)
+              },
+              onOfflineSubmitted(success,payload){
+                  
+              },
+              submitOfflineSales(){
+                  const context = this
+
+                  // Check if there are offline sales 
+                  const offlineSales = localStorage.getItem('LOCAL_SALES_CACHE')
+                  // If object-fi
+                  localStorage.setItem('LOCAL_SALES_CACHE','[]')
+
+                  // If null then return 
+                  if (offlineSales === null){
+                      return
+                  }
+
+                  // Parse the sales
+                  let obj_offlineSales = []
+                  try{
+                    obj_offlineSales = JSON.parse(offlineSales)
+                  }
+
+                  catch(error){
+                     localStorage.setItem('LOCAL_SALES_CACHE_FAILED',JSON.stringify(offlineSales))
+                     return
+                  }
+
+                  // If not a list then register as failed
+                  if (Array.isArray(obj_offlineSales) === false){
+                      localStorage.setItem('LOCAL_SALES_CACHE_FAILED',JSON.stringify(obj_offlineSales))
+                      return
+                  }
+
+                  // Submit the products
+                  obj_offlineSales.forEach(sale => {
+                      // Products as products list 
+                      const productsAsListOfProductModel = sale.cart_items.map(product => {
+                        return  new ProductModel()
+                                    .setId(product.id)
+                                    .setRef(product.ref)
+                                    .setFetched(product.fetched)
+                                    .setName(product.name)
+                                    .setCategoryRef(product.category_ref)
+                                    .setDescription(product.description)
+                                    .setInStock(product.in_stock)
+                                    .setPriceUsd(product.price_usd)
+                                    .setPriceZwg(product.price_zwg)
+                                    .setLastUpdated(product.last_updated)
+                      })
+                     
+                      completeCart(
+                        context.onOfflineSubmitted,
+                        productsAsListOfProductModel,
+                        sale.currency,
+                        sale.idempotence_key,
+                        sale.payment_option,
+                        sale.teller,
+                        sale.shop
+                      )
+                  });
+
+              }
+          },
           mounted(){
               // Fetch categories from the database 
               this.$store.dispatch('sales/fetchAllCategories')
               // Fetch products from the database 
               this.$store.dispatch('sales/fetchAllProducts')
+              // Fetch employee details
+              this.$store.dispatch('sales/fetchEmployeeDetails')
+              // Setup socket io client
+              this.socketioClient =  io(ENDPOINTS.LIVE_UPDATES_ENDPOINT,{
+                  extraHeaders: {
+                      "Authorization" : getAuthorizationToken()
+                  }
+              })
+
+              // Create the client
+              this.socketioClient.on('connect',this.onSocketConnnect)
+              this.socketioClient.on('disconnect',this.onSocketDisconnected)
+              this.socketioClient.on('on-event',this.onSocketEvent)
+              this.socketioClient.on('connection_error',this.onSocketConnectionError)
+
+              // Set a background task for submitting sales
+              setInterval(this.submitOfflineSales,15 * 1000)
           }
   }
 </script>

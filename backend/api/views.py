@@ -9,6 +9,7 @@ import logging
 from .decorators import authorization_required, json_required, requires_permissions
 from . import models as api_models
 from shared_models import models as shared_models
+from socket_io.helper import instance as socket_ioHelperInstance
 
 # Logging configuration
 logging.basicConfig(
@@ -322,7 +323,20 @@ def completeCart(request):
         
     # Bulk save 
     shared_models.ProductSale.objects.bulk_create(cart_sales)
-        
+    
+    # Notify the sale
+    socket_ioHelperInstance.client.emit('on-event',{
+        "event" : "cart-completed",
+        "payload" : {
+            "ref" : ref,
+            "timestamp" : datetime.now().isoformat(),
+            "idempotence_key" : idempotence_key,
+            "cart_count" : len(cart_items)
+        },
+        "timestamp" : datetime.now().isoformat()
+    })
+    
+    # Response
     return JsonResponse({
         "ref" : ref,
         "timestamp" : datetime.now().isoformat(),
@@ -330,6 +344,20 @@ def completeCart(request):
         "cart_count" : len(cart_items)
     })
     
+@csrf_exempt
+@require_http_methods(['GET'])
+@authorization_required
+def getEmployeeDetails(request):
+    ref = str(uuid4())
+    user : api_models.User = request.user
+    
+    return JsonResponse({
+        "ref" : ref,
+        "employee" : user.toDict(),
+        "timestamp" : datetime.now().isoformat()
+    })
+
+
 @csrf_exempt
 @require_http_methods(['GET'])
 @authorization_required

@@ -5,7 +5,7 @@ dotenv.config()
 import {io} from "socket.io-client"
 
 // Create the client 
-const client = io(`http://127.0.0.1:8000`,{
+const client = io(`http://173.249.20.22:8000`,{
     extraHeaders: {
         "Authorization" : "sandbox-2c06f48c-61d8-4464-bb86-291989a4311b"
     }
@@ -23,6 +23,7 @@ client.on('on-event',(payload) => {
     console.log(payload)
 })
 
-client.on('connect_error', (err) => {
-    console.error("Connection failed:", err.message.error);
+client.on('connect_error', (error) => {
+  console.error('Socket.IO connection failed:', error.message);
+  // You can also inspect error.description or error.data for more details
 });

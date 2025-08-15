@@ -7,6 +7,8 @@ import {getAuthorizationToken} from "./AuthorizationRepo.js"
 const ROUTE_COMPLETE_CART = "/api/v1/complete-cart"
 const ROUTE_GET_CATEGORIES = '/api/v1/get-categories'
 const ROUTE_GET_PRODUCTS = '/api/v1/get-products'
+const ROUTE_GET_UDPATED_PRODUCTS = '/api/v1/get-product-updates'
+const ROUTE_GET_EMPLOYEE = '/api/v1/get-employee-details'
 const LOCAL_STORE_KEY = "LOCAL_SALES_CACHE"
 
 /*
@@ -17,7 +19,7 @@ export function getAllProducts(callback){
         ENDPOINTS.BASE_URL + ROUTE_GET_PRODUCTS,
         {
             headers : {
-                'Authorization' : getAuthorizationToken()
+                Authorization : getAuthorizationToken()
             }
         }
     )
@@ -26,6 +28,39 @@ export function getAllProducts(callback){
     .catch(err => callback(false,err))
 }
 
+/*
+    Fetches employee details
+*/
+export function getEmployeeDetails(callback){
+    axios.get(
+        ENDPOINTS.BASE_URL + ROUTE_GET_EMPLOYEE,
+        {
+            headers: {
+                Authorization : getAuthorizationToken()
+            }
+        }
+    )
+    .then(res => res.data)
+    .then(data => callback(true,data))
+    .catch(err => callback(false,err))
+}
+
+/*
+    Get product updates 
+*/
+export function getUpdatedProducts(callback,lastUpdatedIsoDatetime){
+    axios.get(
+        `${ENDPOINTS.BASE_URL}${ROUTE_GET_UDPATED_PRODUCTS}?last-fetched-date-iso=${lastUpdatedIsoDatetime}`,
+        {
+            headers: {
+                Authorization : getAuthorizationToken()
+            }
+        }
+    )
+    .then(res => res.data)
+    .then(data => callback(true,data))
+    .catch(err => callback(false,err))
+}
 
 /*
     Fetches categories from backend
@@ -68,12 +103,12 @@ function writeToLocalStore(sale){
             "total_products" : integer
         }
 */
-export function completeCart(callback,cart_productModelList,currency,idempotence_key,payment_option='CASH'){
+export function completeCart(callback,cart_productModelList,currency,idempotence_key,payment_option='CASH',username='no-username',shop='no-shop'){
     // Payload 
     let payload = {
         cart_items : cart_productModelList.map(item => item.toJson()),
-        teller : "ryan-ben",
-        shop : "southlea-park-01",
+        teller : username,
+        shop : shop,
         currency: currency,
         idempotence_key: idempotence_key,
         payment_option: payment_option,
@@ -91,6 +126,8 @@ export function completeCart(callback,cart_productModelList,currency,idempotence
     .catch(err => {
         // store localy 
         writeToLocalStore(payload)
-        callback(true,err)
+        callback(true,{
+            'ref' : 'offline-sales-' + idempotence_key
+        })
     })
 }

@@ -280,7 +280,7 @@ import router from '@/router';
                 // Set in the UI
                 this.$refs.reference_feild.setText(this.payload.reference)
 
-                notify_success('Product Created')
+                notify_success(`Product Created - ${this.payload.reference}`)
             },
             onFileUploadResult(success,payload){
                 // Not successful 

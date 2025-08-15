@@ -292,6 +292,7 @@
         methods: {
             changePaymentType(newType){
                 this.$data.payment_type = newType
+                this.$emit('on-payment-method-change',newType)
             }
         },
         computed: {

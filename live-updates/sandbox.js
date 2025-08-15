@@ -3,6 +3,10 @@ dotenv.config()
 
 // Libraries
 import {DynamoDBClient, GetItemCommand,PutItemCommand} from "@aws-sdk/client-dynamodb"
+import { SNSClient,SubscribeCommand,PublishCommand } from "@aws-sdk/client-sns"
+
+
+
 
 // Attributes 
 const AWS_REAGION = process.env.AWS_REAGION
@@ -10,6 +14,29 @@ const DYNAMO_DB_TABLE = process.env.DYNAMO_DB_TABLE
 
 // Create the client 
 const dynamo_db = new DynamoDBClient({region:AWS_REAGION})
+const sns_client = new SNSClient({region: AWS_REAGION }) 
+
+// Publish to a topic
+const publish_command = new PublishCommand({
+    TopicArn: process.env.LIVE_UPDATES_TOPIC_SNS_ARN,
+    Message: JSON.stringify({
+        event : "shop-sale",
+        payload : {
+            shop: "southly-park",
+            timestamp: "2025-08-14T10:01:27.261740",
+            commited: true
+        } 
+    })
+})
+
+try{
+    await sns_client.send(publish_command)
+}
+catch(error){
+    console.log(error)
+}
+
+
 
 // Write something 
 const put_query = {
@@ -22,7 +49,7 @@ const put_query = {
             BOOL : true
         },
         created : {
-            S : '2025-08-13T10:01:27.261740'
+            S : '2025-08-14T10:01:27.261740'
         },
         username : {
             S : 'rben'

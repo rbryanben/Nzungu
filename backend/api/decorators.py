@@ -48,7 +48,7 @@ def authorization_required(func):
         iso_created = datetime.fromisoformat(str_created)
         
         # Check expiry
-        if iso_created + timedelta(hours=1) < datetime.now():
+        if iso_created + timedelta(hours=6) < datetime.now():
             return JsonResponse({
                 "error" : "Authorization token has expired",
                 "timestamp" : datetime.now().isoformat()

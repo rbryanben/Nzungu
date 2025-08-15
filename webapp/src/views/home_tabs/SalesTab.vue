@@ -17,8 +17,8 @@
                 </div>
                 <div class="content">
                     <div style="height: fit-content;" class="align-center">
-                        <div class="fullname">Samson Nyalugwe</div>
-                        <div class="title">Shop Manager</div>
+                        <div class="fullname">{{$store.state.sales.employee.name}}</div>
+                        <div class="title">{{$store.state.sales.employee.role}}</div>
                     </div>
                 </div>
             </div>
@@ -59,7 +59,8 @@
                 <SidePanel 
                     :cart_products="this.$store.getters['cart/cart_products']"
                     :proccessing="submitting_cart" 
-                    @complete-cart="onCompleteCart"/>
+                    @complete-cart="onCompleteCart"
+                    @on-payment-method-change="setPaymentMethod"/>
             </div>
         </div>
 
@@ -204,8 +205,9 @@
     import Product from "@/components/Product.vue";
     import SidePanel from "@/components/SidePanel.vue";
     import { completeCart } from "@/repo/SaleRepo";
-import ProductModel from "@/models/ProductModel";
-import { generateUUID } from "@/utils/common";
+    import ProductModel from "@/models/ProductModel";
+    import { generateUUID } from "@/utils/common";
+    import { notify_success } from "@/utils/notifications";
     
     export default {
         name: "SalesTab",
@@ -221,7 +223,8 @@ import { generateUUID } from "@/utils/common";
                 selected_category: '*',
                 search_text : '',
                 submitting_cart: false,
-                idempotence_key : null
+                idempotence_key : null,
+                payment_method : 'swipe'
             }
         },
         mounted(){
@@ -244,6 +247,9 @@ import { generateUUID } from "@/utils/common";
                     this.$store.commit('setCurrency', 'ZWG')       
                 }
             },
+            setPaymentMethod(payload){
+                this.payment_method = payload
+            },
             onSearchTextChanged(searchText){
                 this.selected_category = '*'
                 this.search_text = searchText
@@ -251,9 +257,15 @@ import { generateUUID } from "@/utils/common";
             onCartCompleted(success,payload){
                 // Stop the loading 
                 this.submitting_cart = false
+
+                // Generate new idempotance key 
+                this.idempotence_key = generateUUID()
                 
                 // log the event
-                console.log(payload)
+                this.$store.dispatch('cart/clearCart')
+
+                // Notify the client
+                notify_success(`Completed cart - ${payload.ref}`)
             },
             onCompleteCart(){
                 // Show progress 
@@ -275,7 +287,15 @@ import { generateUUID } from "@/utils/common";
                 })
 
                 // Complete the cart 
-                completeCart(this.onCartCompleted,listOfProductModel,this.$store.state.currency,this.idempotence_key)
+                completeCart(
+                    this.onCartCompleted,
+                    listOfProductModel,
+                    this.$store.state.currency,
+                    this.idempotence_key,
+                    this.payment_method,
+                    this.$store.state.sales.employee.username,
+                    this.$store.state.sales.employee.shop.ref
+                )
             
             }
         },

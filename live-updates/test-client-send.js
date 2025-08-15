@@ -5,9 +5,9 @@ dotenv.config()
 import {io} from "socket.io-client"
 
 // Create the client 
-const client = io(`http://127.0.0.1:${process.env.PORT}`,{
+const client = io(`http://173.249.20.22:8000`,{
     extraHeaders: {
-        "Authorization" : "sandbox-2c06f48c-61d8-4464-bb86-291989a4311b"
+        "Authorization" : "live-updates-8d3922b7-cfca-4dd6-8cde-198c0c3649d8"
     }
 })
 

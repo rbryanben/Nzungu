@@ -6,7 +6,7 @@ from api import models as api_models
 from django.db.models import Sum
 from django.db.models import Q
 from typing import List
-
+from socket_io.helper import instance as socket_ioHelperInstance
 class ReferencedObject(models.Model):
     id = models.AutoField(primary_key=True)
     ref = models.CharField(max_length=256,blank=True)
@@ -18,6 +18,23 @@ class ReferencedObject(models.Model):
     
     class Meta:
         abstract = True
+        
+class Shop(ReferencedObject):
+    name = models.CharField(max_length=64)
+    meta = models.CharField(max_length=512,null=True,blank=True)
+    last_updated = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return self.name
+    
+    def toDict(self):
+        return {
+            'ref' : self.ref,
+            'name' : self.name,
+            'meta' : self.meta,
+            'last_updated' : self.last_updated
+        }
+    
 
 class Upload(models.Model):
     id = models.AutoField(primary_key=True)
@@ -38,14 +55,31 @@ class ProductCategory(ReferencedObject):
     icon = models.CharField(max_length=32)
     last_updated = models.DateTimeField(auto_now=True)
     
+    def save(self, *args, **kwargs):
+        
+        # Notify that a new product category has been added
+        socket_ioHelperInstance.client.emit('on-event',{
+            "event" : "product-category-updated",
+            "payload" : self.toDict(small=True),
+            "timestamp" : datetime.now().isoformat()
+        })
+        
+        return super().save(*args, **kwargs)
+    
     @property
     def stock_count(self):
-        return -1
+        return Product.objects.filter(category=self).count()
     
     def __str__(self):
         return self.name
     
-    def toDict(self):
+    def toDict(self,small=False):
+        if small:
+            return {
+                "id" : self.id,
+                "name" : self.name,
+                "ref" : self.ref
+            }
         return {
             "id" : self.id,
             "name" : self.name,
@@ -66,6 +100,9 @@ class ProductStockStatusFilter(ReferencedObject):
     value = models.CharField(max_length=32)
     subtext = models.CharField(max_length=128)
     last_updated = models.DateTimeField(auto_now=True)
+    
+    def save(self, *args, **kwargs):
+        return super().save(*args, **kwargs)
     
     @property
     def count(self):
@@ -95,6 +132,17 @@ class Product(ReferencedObject):
     expiry_day_buffer = models.IntegerField(default=5)
     last_updated = models.DateTimeField(auto_now=True)
 
+    def save(self, *args, **kwargs):
+        is_new = self._state.adding
+        res = super().save(*args, **kwargs)
+
+        event_name = "product-added" if is_new else "product-updated"
+        socket_ioHelperInstance.client.emit('on-event', {
+            "event": event_name,
+            "payload": self.toDict(small=True),
+            "timestamp": datetime.now().isoformat()
+        })
+        
     @property
     def earliest_expiry_date(self):
         return -1
@@ -118,7 +166,22 @@ class Product(ReferencedObject):
     def __str__(self):
         return self.name
     
-    def toDict(self):
+    def toDict(self,small=False):
+        
+        if small:
+            return {
+                "fetched" : datetime.now().isoformat(),
+                "name" : self.name,
+                "category" : {
+                    "name" : self.category.name,
+                    "ref" : self.category.ref
+                },
+                "description" : self.description,
+                "price_usd" : self.price_usd,
+                "price_zwg" : self.price_zwg if self.price_zwg > 0 else float(os.getenv("EXG_USD_ZWG")) * self.price_usd,
+                "image_url" : self.image_uploaded.url,
+                "reorder_point" : self.reorder_point
+            }
         return {
             "id" : self.id,
             "ref" : self.ref,
@@ -133,7 +196,7 @@ class Product(ReferencedObject):
             "price_usd" : self.price_usd,
             "price_zwg" : self.price_zwg if self.price_zwg > 0 else float(os.getenv("EXG_USD_ZWG")) * self.price_usd,
             "sold" : self.sold,
-            "last_upated" : self.last_updated.isoformat(),
+            "last_upated" : self.last_updated.isoformat() if self.last_updated else  datetime.now().isoformat(),
             "image_url" : self.image_uploaded.url,
             "reorder_point" : self.reorder_point,
             "earliest_expiry_date" : self.earliest_expiry_date,
@@ -159,7 +222,7 @@ class Product(ReferencedObject):
             Q(ref__in=sold_products)   
         ).distinct()
         
-        return [product.toDict() for product in updated_products]
+        return { product.ref:product.toDict() for product in updated_products}
         
 class Permission(models.Model):
     id = models.AutoField(primary_key=True)
@@ -185,6 +248,25 @@ class Stock(ReferencedObject):
     user = models.ForeignKey(api_models.User,on_delete=models.DO_NOTHING,null=True)
     updated = models.DateTimeField(auto_now=True)
 
+    def save(self, *args, **kwargs):
+        
+        # Notify that a new product category has been added
+        socket_ioHelperInstance.client.emit('on-event',{
+            "event" : "product-stock-updated",
+            "payload" : self.toDict(),
+            "timestamp" : datetime.now().isoformat()
+        })
+        
+        return super().save(*args, **kwargs)
+    
+    def toDict(self):
+        return {
+            "product" : self.product.toDict(),
+            "expires" : self.expires.isoformat(),
+            "count" : self.count,
+            "updated" : self.updated.isoformat() if self.updated else datetime.now().isoformat()
+        }
+        
     def __str__(self):
         return f"{'_'.join(self.product.name.lower().split(' '))}-{self.updated}"
     

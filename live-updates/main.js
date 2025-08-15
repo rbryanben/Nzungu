@@ -9,7 +9,6 @@ import ioHandler from './handlers.js'
 import logMessage from './utils/logger.js';
 import { authorization_required } from './middleware.js';
 
-
 // Expess Server
 const app = express();
 const server = createServer(app);
@@ -20,7 +19,8 @@ const io = new Server(server, {
   cors: {
     origin: '*', 
     methods: ['GET', 'POST'], 
-    allowedHeaders: ['Content-Type']
+    allowedHeaders: ['*'],
+    credentials: true
   }
 });
 
@@ -29,6 +29,11 @@ app.get('/', (req, res) => {
   res.send('Seems like you want tea from a coffee machine! :PS Live updates services');
 });
 
+// Endpoint to post messages
+app.post('/inbound-message',(req,res)=>{
+  return postMessage(req,res,io)
+})
+
 // Middleware 
 io.use(authorization_required)
 
@@ -36,6 +41,6 @@ io.use(authorization_required)
 io.on('connection',ioHandler);
 
 // Listen 
-server.listen(PORT, () => {
+server.listen(PORT,"0.0.0.0", () => {
     logMessage(`Server started listening on 0.0.0.0:${PORT}`)
 });

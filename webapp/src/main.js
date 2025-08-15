@@ -7,7 +7,8 @@ import axios from 'axios'
 import { notify_failed } from './utils/notifications'
 
 export const ENDPOINTS = {
-    "BASE_URL" : "http://192.168.0.186"
+    "BASE_URL" : "http://192.168.0.186:8000",
+    "LIVE_UPDATES_ENDPOINT" : "http://173.249.20.22:8000" 
 }
 
 createApp(App).use(store).use(router).mount('#app')

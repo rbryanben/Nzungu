@@ -1,3 +1,6 @@
 dotenv 
 django
 django-cors-headers
+socketio
+requests
+python-socketio[client]

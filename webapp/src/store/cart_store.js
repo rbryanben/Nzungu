@@ -21,6 +21,9 @@ export default {
         
         // Increment the product count 
         if (state.working_cart[product.ref] && state.working_cart[product.ref].count){
+            if (state.working_cart[product.ref].count === product.in_stock){
+                return
+            }
             state.working_cart[product.ref].count += 1
         } 
     },
@@ -40,11 +43,17 @@ export default {
 
         // Subtract the count by 1
         item.count -= 1;
+    },
+    clearWorkingCart(state){
+        state.working_cart = {}
     }
   },
   // Actions
   actions: {
-     
+        // Clear the cart
+        clearCart({commit}){
+            commit('clearWorkingCart')
+        }
   },
   // Getters 
   getters: {

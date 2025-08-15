@@ -1,4 +1,9 @@
+import dotenv from "dotenv"
+dotenv.config()
 import logMessage from "./utils/logger.js";
+
+// Attributes
+const ADMIN_CREDENTIALS = process.env.ADMIN_KEY
 
 // Method to handle onDisconnect
 const onDisconnect = (socket) => {
@@ -9,6 +14,14 @@ const onDisconnect = (socket) => {
 
 // Method to handle onEvent
 const onEvent = (socket, payload) => {
+    // Authorization
+    const authorization = socket.handshake.headers.authorization || socket.handshake.headers.Authorization;
+    
+    if (authorization !== ADMIN_CREDENTIALS){
+      return
+    }
+    
+    // Broadcast only if the client is an admin
     socket.broadcast.emit("on-event",payload)
 }
 

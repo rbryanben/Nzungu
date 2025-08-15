@@ -107,7 +107,7 @@
         height: 80px;
         width: 80px;
         border-radius: 5px;
-        object-fit: cover;
+        object-fit: contain;
     }
 
     .wrapper .bottom {
@@ -184,6 +184,11 @@
         .wrapper img {
             height: 40px;
             width: 40px;
+            object-fit: contain;
+        }
+
+        img {
+            object-fit: contain !important;
         }
 
          .wrapper .top .right .name {
