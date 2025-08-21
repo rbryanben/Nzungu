@@ -1,3 +1,4 @@
+import { formatTwoDecimals } from "@/utils/common.js"
 import {getAllProducts,getAllCategories,getUpdatedProducts,getEmployeeDetails} from "../repo/SaleRepo.js"
 import { notify_failed } from "@/utils/notifications.js"
 
@@ -128,6 +129,15 @@ export default {
   },
   // Getters 
   getters: {
+      get_products_list(state){
+         return state.products.map(product => {
+            return {
+                ...product,
+                price_usd : formatTwoDecimals(product.price_usd),
+                price_zwg : formatTwoDecimals(product.price_zwg)
+            }
+         })
+      }
     
   },
 }

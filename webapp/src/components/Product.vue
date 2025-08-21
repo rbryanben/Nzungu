@@ -19,7 +19,7 @@
         </div>
         <div class="bottom">
             <div class="left">
-                $<span style="font-weight: bold;color: #404143;">{{ price }}</span>  
+                $<span style="font-weight: bold;color: #404143;">{{ f_price }}</span>  
             </div>
             <div class="right-buttons">
                 <div class="sub circle-button" @mousedown="increment(-1)">
@@ -256,6 +256,8 @@
 </style>
 
 <script>
+import { formatTwoDecimals } from '@/utils/common';
+
     export default {
         name : "Product",
         methods: {
@@ -278,6 +280,9 @@
                 }
 
                 return 0;
+            },
+            f_price(){
+                return formatTwoDecimals(this.price)
             }
         },
         props: {

@@ -207,7 +207,7 @@
     import { completeCart } from "@/repo/SaleRepo";
     import ProductModel from "@/models/ProductModel";
     import { generateUUID } from "@/utils/common";
-    import { notify_success } from "@/utils/notifications";
+    import { notify_success, notify_cart_completed } from "@/utils/notifications";
     
     export default {
         name: "SalesTab",
@@ -264,6 +264,9 @@
                 // log the event
                 this.$store.dispatch('cart/clearCart')
 
+                // Notify cart completed 
+                notify_cart_completed()
+                
                 // Notify the client
                 notify_success(`Completed cart - ${payload.ref}`)
             },

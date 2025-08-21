@@ -1,11 +1,14 @@
 <template>
   <div class="wrapper">
       <div class="tiles">
-          <div class="tile selected" title="Make Sale">
-              <img src="/svg/shopping-basket.svg" alt="">
+          <div class="tile" :class="{'selected' : selected === 'sale'}" @click="select('sale','sales')"  title="Make Sale">
+              <img src="/svg/shopping-basket-white.svg" alt="">
           </div>
-          <div class="tile" title="Sales">
+          <div class="tile" :class="{'selected' : selected === 'my-sales'}" @click="select('my-sales','view-sales')"  title="My Sales">
               <img src="/svg/wallet.svg" alt="">
+          </div>
+          <div class="tile" :class="{'selected' : selected === 'inventory'}" @click="select('inventory','inventory')"  title="Shop Inventory">
+              <img src="/svg/cart-flatbed.svg" alt="">
           </div>
       </div>
       <div class="panel">
@@ -27,7 +30,7 @@
    height: 100vh;
    z-index: 10;
    background-color: white;
-   border-right: solid 1.8px rgba(128, 128, 128, 0.116);
+   border-right: solid 1.8px rgba(225, 225, 225, 0.116);
    width: 100%;
    cursor: pointer;
    transition: all 0.2s ease-in;
@@ -37,7 +40,7 @@
     margin-top: 10px;
     display: flex;
     position: relative;
-    background-color: rgba(182, 182, 182, 0.86);
+    background-color: rgba(182, 182, 182, 0.881);
     width: 30px;
     height: 30px;
     margin-left: auto;
@@ -50,27 +53,9 @@
     background-color: rgba(243, 138, 27, 0.86);
   }
 
-  .tile::before{
-    content: "";
-    display: flex;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%,-50%);
-    height: inherit;
-    width: 0px;
-    border-radius: 5px;
-    background-color: rgba(128, 128, 128, 0.273);
-    transition: all 0.1s ease-in;
-  }
-
-  .tile:hover::before{
-    width: 100%;
-  }
-
   .tile img {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     margin: auto;
   }
 
@@ -90,22 +75,27 @@
   import { ENDPOINTS } from "@/main"
   import { getAuthorizationToken } from "@/repo/AuthorizationRepo"
   import { completeCart } from "@/repo/SaleRepo"
-  import { notify_success } from "@/utils/notifications"
+  import { notify_failed, notify_success } from "@/utils/notifications"
   import ProductModel from "@/models/ProductModel"
 
   export default {
       name: "SaleView",
           data(){
             return {
-                socketioClient : null
+                socketioClient : null,
+                selected: 'sale'
             }
           },
           methods: {
+              select(name,route){
+                this.selected = name
+                this.$router.push({name : route})
+              },
               onSocketConnnect(){
-                 console.log("connected to the socket")
+                 notify_success('Connected to live updates service')
               },
               onSocketDisconnected(){
-                 console.log("disconnected to the socket")
+                 notify_failed('Disconnected from live updates service')
               },
               onSocketEvent(payload){
                   // Update products list 
@@ -119,6 +109,8 @@
                   if ('event' in payload && payload.event === 'product-added'){
                     // Dispatch the call to update products
                     this.$store.dispatch('sales/fetchProductUpdates',true)  
+                    // Fetch category updates
+                    this.$store.dispatch('sales/fetchAllCategories')
                     return
                   }
 
@@ -132,6 +124,10 @@
               submitOfflineSales(){
                   const context = this
 
+                  // Check socketio connection 
+                  if (!this.socketioClient.connected){
+                    this.socketioClient.connect()
+                  }
                   // Check if there are offline sales 
                   const offlineSales = localStorage.getItem('LOCAL_SALES_CACHE')
                   // If object-fi

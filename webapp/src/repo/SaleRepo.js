@@ -9,7 +9,22 @@ const ROUTE_GET_CATEGORIES = '/api/v1/get-categories'
 const ROUTE_GET_PRODUCTS = '/api/v1/get-products'
 const ROUTE_GET_UDPATED_PRODUCTS = '/api/v1/get-product-updates'
 const ROUTE_GET_EMPLOYEE = '/api/v1/get-employee-details'
+const ROUTE_GET_TELLER_SALES = '/api/v1/get-teller-sales'
 const LOCAL_STORE_KEY = "LOCAL_SALES_CACHE"
+
+/*
+    Returns a list of teller sales
+*/
+export function getTellerSales(period,callback){
+    axios.get(ENDPOINTS.BASE_URL + ROUTE_GET_TELLER_SALES + `?period=${period}`,{
+        headers: {
+            Authorization: getAuthorizationToken()
+        }
+    })
+    .then(res => res.data)
+    .then(data => callback(true,data))
+    .catch(err => callback(false,err))
+}
 
 /*
     Fetches products from backend 

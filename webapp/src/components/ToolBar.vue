@@ -16,8 +16,8 @@
             </div>
             <div class="content">
                 <div style="height: fit-content;" class="align-center">
-                    <div class="fullname">Samson Nyalugwe</div>
-                    <div class="title">Shop Manager</div>
+                    <div class="fullname">{{$store.state.sales.employee.name}}</div>
+                    <div class="title">{{$store.state.sales.employee.role}}</div>
                 </div>
             </div>
         </div>

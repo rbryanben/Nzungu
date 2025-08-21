@@ -134,3 +134,12 @@ CORS_ALLOWED_ORIGINS = [
     "http://192.168.0.186:8080"
 ]
 
+CORS_ALLOW_ALL_ORIGINS = True
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "unique-snowflake", 
+        "TIMEOUT": 180, 
+    }
+}

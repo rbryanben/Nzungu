@@ -19,7 +19,7 @@ export const DUMMY_PRODUCTS = [
     earliest_expiry_date: "2025-08-15",
     expiry_day_buffer: 7,
     filter: {
-      value : "in-stock",
+      value: "in-stock",
       name: "In Stock"
     }
   },
@@ -371,8 +371,8 @@ export const DUMMY_CATEGORIES = [
 
 export const DUMMY_FILTERS = [
   {
-    ref : "7ea546kj-a46a-1958-87fb-53a3de9f2341",
-    value : "*",
+    ref: "7ea546kj-a46a-1958-87fb-53a3de9f2341",
+    value: "*",
     name: "All Items",
     icon: "store",
     theme: "#f2faf2ff",
@@ -380,16 +380,16 @@ export const DUMMY_FILTERS = [
     subtext: "Items in stock"
   },
   {
-    ref : "7ea546ac-a46a-4558-87fb-53a3de9f2342",
-    value : "in-stock",
+    ref: "7ea546ac-a46a-4558-87fb-53a3de9f2342",
+    value: "in-stock",
     name: "In Stock",
     theme: "#F2FAF8",
     count: 67,
     subtext: "Items in stock"
   },
   {
-    ref : "011014dc-cd38-401a-8505-8bddfc5fb7b9",
-    value : "low-stock",
+    ref: "011014dc-cd38-401a-8505-8bddfc5fb7b9",
+    value: "low-stock",
     name: "Low Stock",
     theme: "#FAF4F1",
     icon: "gauge-low",
@@ -397,29 +397,62 @@ export const DUMMY_FILTERS = [
     subtext: "Items low in stock"
   },
   {
-    ref : "6aac662d-d5fb-486e-be8a-c5b718cae772",
-    value : "almost-expired",
+    ref: "6aac662d-d5fb-486e-be8a-c5b718cae772",
+    value: "almost-expired",
     name: "Almost Expired",
     theme: "#FFF0F1",
-    icon:"calendar-clock",
+    icon: "calendar-clock",
     count: 3,
     subtext: "Items about to expire"
   },
   {
-    ref : "f07aa88c-14ba-4709-b96e-72a008880004",
-    value : "out-of-stock",
+    ref: "f07aa88c-14ba-4709-b96e-72a008880004",
+    value: "out-of-stock",
     name: "Out of Stock",
     icon: "box-open",
     count: 5,
     subtext: "Items out of stock"
   },
   {
-    ref : "7ea416ec-a46a-4558-87fb-53a3de9f2341",
-    value : "expired",
+    ref: "7ea416ec-a46a-4558-87fb-53a3de9f2341",
+    value: "expired",
     name: "Expired",
     theme: "#faf2f2ff",
     count: 67,
     icon: "triangle-exclamation",
     subtext: "Items that expired"
   }
+]
+
+export const DAILY_DALES = [
+    {
+        timestamp: "16/08/2025 07:24am",
+        ref: "c2cc5e49-9e5d-4a1a-8e05-a6ceb202aa27",
+        payment_method: "Swipe",
+        currency: "USD",
+        items:  [
+            { 
+              "id": 15, 
+              "ref": "c2cc5e49-9e5d-4a1a-8e05-a6ceb202aa26",
+              "fetched": "2025-08-16T18:43:03.698999",
+              "name": "Parmalat Sliced Processed Cheddar Cheese 200g", 
+              "category": { 
+                  "name": "Dairy",
+                  "ref": "04afd097-7407-48bd-9961-67c654c274a5" 
+              }, 
+              "description": "Dairy Cheese Each",
+              "in_stock": 4,
+              "price_usd": 3.96,
+              "price_zwg": 138.6,
+              "sold": 1,
+              "last_upated": "2025-08-16T10:36:35.086018+00:00",
+              "image_url": "https://test-sandy-salts-nzungu.s3.af-south-1.amazonaws.com/uploads/0a4ece96-bbce-412a-9e84-8300a1fd8b29.jpeg", 
+              "reorder_point": 5, 
+              "earliest_expiry_date": -1, 
+              "expiry_day_buffer": 10, 
+              "filter": "low-stock",
+              "count" : 2
+          }
+        ]
+    }
 ]

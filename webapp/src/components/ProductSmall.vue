@@ -31,13 +31,13 @@
     .product-image {
         height: 50px;
         width: 50px;
-        object-fit: cover;
+        object-fit: contain;
     }
 
     .title {
         font-size: 1rem;
         font-weight: bold;
-        width: 90%;
+        width: 80%;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -51,7 +51,7 @@
     .category {
         margin-top: 7px;
         font-size: 0.9rem;
-        width: 70%;
+        width: 60%;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;

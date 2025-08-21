@@ -4,6 +4,7 @@ import {DUMMY_PRODUCTS,DUMMY_FILTERS} from "./DummyData.js"
 import {getAuthorizationToken} from "./AuthorizationRepo.js"
 
 const ROUTE_CREATE_PRODUCT = '/api/v1/create-product'
+const ROUTE_GET_STOCK_FILTERS = '/api/v1/get-products-stock-filters'
 
 export function getProductsInventory(callback){
     setTimeout(()=>{
@@ -11,10 +12,18 @@ export function getProductsInventory(callback){
     },1000)
 }
 
+/*
+    Fetch stock filters from the server
+*/
 export function getFilters(callback){
-    setTimeout(()=>{
-        callback(true,DUMMY_FILTERS)
-    },500)
+    axios.get(ENDPOINTS.BASE_URL + ROUTE_GET_STOCK_FILTERS,{
+        headers: {
+            Authorization: getAuthorizationToken()
+        }
+    })
+    .then(res => res.data)
+    .then(data => callback(true,data))
+    .catch(err => callback(false,err))
 }
 
 export function generateReference(callback){

@@ -8,6 +8,7 @@ import boto3
 import logging
 from .decorators import authorization_required, json_required, requires_permissions
 from . import models as api_models
+from django.views.decorators.cache import cache_page
 from shared_models import models as shared_models
 from socket_io.helper import instance as socket_ioHelperInstance
 
@@ -198,8 +199,28 @@ def getCategories(request):
     # Category 
     categories = shared_models.ProductCategory.objects.all()
     
+    # All products category 
+    categoryAllProduct = {
+        "id" : "all-category",
+        "name" : "All",
+        "ref" : "*",
+        "stock_count" : shared_models.Product.objects.count(),
+        "last_updated" : datetime.now().isoformat()
+    }
+    
+    # In cart product category
+    categoryInCart = {
+        "id" : "cart",
+        "name" : "In Cart",
+        "ref" : "cart",
+        "icon" : "shopping-basket.svg",
+        "stock_count" : "My",
+        "last_updated" : datetime.now().isoformat()
+    }
+    
+    
     # Serialize categories 
-    s_categories = [category.toDict() for category in categories]
+    s_categories = [categoryAllProduct] + [category.toDict() for category in categories] + [categoryInCart]
     
     # Response 
     return JsonResponse({
@@ -209,6 +230,7 @@ def getCategories(request):
         "timestamp" : datetime.now().isoformat()
     })
 
+@cache_page(60)
 @csrf_exempt
 @require_http_methods(['GET'])
 @authorization_required
@@ -325,16 +347,19 @@ def completeCart(request):
     shared_models.ProductSale.objects.bulk_create(cart_sales)
     
     # Notify the sale
-    socket_ioHelperInstance.client.emit('on-event',{
-        "event" : "cart-completed",
-        "payload" : {
-            "ref" : ref,
-            "timestamp" : datetime.now().isoformat(),
-            "idempotence_key" : idempotence_key,
-            "cart_count" : len(cart_items)
-        },
-        "timestamp" : datetime.now().isoformat()
-    })
+    try:
+        socket_ioHelperInstance.client.emit('on-event',{
+            "event" : "cart-completed",
+            "payload" : {
+                "ref" : ref,
+                "timestamp" : datetime.now().isoformat(),
+                "idempotence_key" : idempotence_key,
+                "cart_count" : len(cart_items)
+            },
+            "timestamp" : datetime.now().isoformat()
+        })
+    except Exception as e:
+            logging.error(f"Failed to send socket.io notification - {e}")
     
     # Response
     return JsonResponse({
@@ -393,3 +418,26 @@ def getProductUpdates(request):
         'count' : len(products),
         'timestamp' : datetime.now().isoformat()
     },safe=False)
+
+
+@csrf_exempt
+@require_http_methods(['GET'])
+@authorization_required
+def getTellerSales(request):
+    ref = str(uuid4())
+    # Check if period is defined 
+    if 'period' not in request.GET:
+        return JsonResponse({
+            "ref" : ref,
+            "error" : "Parameter 'period' is not defined in request",
+            "timestamp" : datetime.now().isoformat()
+        })
+        
+    # Mock timestamp 
+    fromDate = datetime.fromisoformat("2025-08-01")
+    
+    return JsonResponse({
+        "ref" : ref,
+        "carts" : shared_models.ProductSale.getTellerSales(request.user,fromDate),
+        "timestamp" : datetime.now().isoformat()
+    }) 

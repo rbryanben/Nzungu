@@ -2,11 +2,17 @@ from django.db import models
 from datetime import datetime
 from uuid import uuid4
 import os
+import logging
 from api import models as api_models
-from django.db.models import Sum
+from django.db.models import Sum, QuerySet
 from django.db.models import Q
-from typing import List
+from typing import List, Dict
 from socket_io.helper import instance as socket_ioHelperInstance
+from django.utils import timezone
+from datetime import timedelta
+from django.core.cache import cache
+
+
 class ReferencedObject(models.Model):
     id = models.AutoField(primary_key=True)
     ref = models.CharField(max_length=256,blank=True)
@@ -58,11 +64,14 @@ class ProductCategory(ReferencedObject):
     def save(self, *args, **kwargs):
         
         # Notify that a new product category has been added
-        socket_ioHelperInstance.client.emit('on-event',{
-            "event" : "product-category-updated",
-            "payload" : self.toDict(small=True),
-            "timestamp" : datetime.now().isoformat()
-        })
+        try:
+            socket_ioHelperInstance.client.emit('on-event',{
+                "event" : "product-category-updated",
+                "payload" : self.toDict(small=True),
+                "timestamp" : datetime.now().isoformat()
+            })
+        except Exception as e:
+            logging.error(f"Failed to send socket.io notification - {e}")
         
         return super().save(*args, **kwargs)
     
@@ -106,7 +115,19 @@ class ProductStockStatusFilter(ReferencedObject):
     
     @property
     def count(self):
-        return -1
+        # Cache
+        cache_key = f'product-stock-filter-{self.ref}'
+        cache_value = cache.get(cache_key)
+        
+        # Return the cached value
+        if cache_value:
+            return cache_value
+        
+        # Count the products
+        result = len([product for product in Product.objects.all() if product.filter == self.value])
+        cache.set(cache_key,result,300)
+        
+        return result
     
     def __str__(self):
         return self.name
@@ -116,6 +137,8 @@ class ProductStockStatusFilter(ReferencedObject):
             "id" : self.id,
             "ref" : self.ref,
             "name" : self.name,
+            "value" : self.value,
+            "subtext" : self.subtext,
             "icon" : self.icon,
             "stock_count" : self.count,
             "last_updated" : self.last_updated.isoformat()
@@ -137,12 +160,16 @@ class Product(ReferencedObject):
         res = super().save(*args, **kwargs)
 
         event_name = "product-added" if is_new else "product-updated"
-        socket_ioHelperInstance.client.emit('on-event', {
-            "event": event_name,
-            "payload": self.toDict(small=True),
-            "timestamp": datetime.now().isoformat()
-        })
         
+        try:
+            socket_ioHelperInstance.client.emit('on-event', {
+                "event": event_name,
+                "payload": self.toDict(small=True),
+                "timestamp": datetime.now().isoformat()
+            })
+        except Exception as e:
+            logging.error(f"Failed to send socket.io notification - {e}")
+            
     @property
     def earliest_expiry_date(self):
         return -1
@@ -157,11 +184,57 @@ class Product(ReferencedObject):
     
     @property
     def filter(self):
-        return "implement-filter"
+        # Cache key 
+        cache_key = f"product_filter_{self.pk}"
+        cached_value = cache.get(cache_key)
+        
+        # Return the cached value
+        if cached_value is not None:
+            return cached_value
+        
+        # Out of stock then return 
+        if self.in_stock <= 0:
+            return 'out-of-stock'
+        
+        # Get stocks 
+        stocksOrderedByExpiry = Stock.objects.filter(product=self).order_by("expires")
+        
+        # Sales 
+        productSales = self.sold
+        
+        # Calculate
+        totalStock = 0 
+        earliestExpiryDate = None
+        
+        for stock in stocksOrderedByExpiry:
+            totalStock += stock.count
+            if totalStock > productSales:
+                earliestExpiryDate = stock.expires
+    
+        # Expired
+        now = timezone.now().date()
+        if now >= earliestExpiryDate:
+            result = "expired"
+        
+        # Almost expired
+        elif earliestExpiryDate <= now + timedelta(days=self.expiry_day_buffer):
+            result = 'almost-expired'
+        
+        # Low stock
+        elif self.in_stock <= self.reorder_point:
+            result = 'low-stock'
+        
+        else:    
+            result = "in-stock"
+    
+        # ✅ store in cache for 3 minutes
+        cache.set(cache_key, result, timeout=180)
+        return result
     
     @property
     def fetched(self):
         return datetime.now().isoformat()
+    
     
     def __str__(self):
         return self.name
@@ -247,6 +320,8 @@ class Stock(ReferencedObject):
     count = models.IntegerField()
     user = models.ForeignKey(api_models.User,on_delete=models.DO_NOTHING,null=True)
     updated = models.DateTimeField(auto_now=True)
+    buying_price_usd_each = models.FloatField(default=0)
+    buying_price_zwg_each = models.FloatField(default=0)
 
     def save(self, *args, **kwargs):
         
@@ -289,6 +364,28 @@ class ProductSale(ReferencedObject):
     currency = models.CharField(max_length=16)
     payment_option = models.CharField(max_length=16)
     
+    def toDict(self):
+        product = Product.objects.select_related("image_uploaded","category").get(ref=self.product)
+        return { 
+            "id": product.id, 
+            "ref": product.ref,
+            "fetched": self.fetched,
+            "name": product.name, 
+            "category": product.category.toDict(), 
+            "description": product.description,
+            "in_stock": product.in_stock,
+            "price_usd": self.price_usd,
+            "price_zwg": self.price_zwg,
+            "sold": product.sold,
+            "last_upated": product.last_updated,
+            "image_url": product.image_uploaded.url, 
+            "reorder_point": product.reorder_point, 
+            "earliest_expiry_date": -1, 
+            "expiry_day_buffer": product.expiry_day_buffer, 
+            "filter": product.filter,
+            "count" : 1
+        }
+        
     @property
     def product_name(self):
         product = Product.getUsingRef(ref=self.product)
@@ -299,6 +396,54 @@ class ProductSale(ReferencedObject):
         result = ProductSale.objects.filter(product=product_ref).aggregate(total=Sum('count'))
         return result['total'] or 0
     
+    @staticmethod
+    def getSalesFromCart(cart : str) -> QuerySet['ProductSale']:
+        return ProductSale.objects.filter(cart=cart)
+    
+    @staticmethod
+    def getTellerSales(teller : api_models.User, fromDate : datetime) -> List[Dict]:
+        
+        # All sales frm the given date 
+        carts = ProductSale.objects.filter(
+            teller=teller,
+            last_updated__gt=fromDate
+        ).values_list('cart',flat=True).distinct().order_by("commited")
+        
+        # Grouped sales 
+        groupedSales = []
+        
+        # Iterate the carts
+        for cart in carts:
+            # Get the sales 
+            sales = ProductSale.getSalesFromCart(cart)
+            
+            # Products grouped 
+            products = {}
+            
+            # Iterate the sales
+            for sale in sales:
+                # If sale in product
+                if sale.product in products:
+                    products[sale.product]['count'] += 1 
+                    continue    
+                
+                # If sale not in products then add it with a count of 1
+                productSaleDict = sale.toDict()
+                productSaleDict['count'] = 1
+                products[sale.product] = productSaleDict
+                
+                
+            # Add to grouped sales 
+            groupedSales.append({
+                "timestamp": sales[0].commited,
+                "ref": cart,
+                "payment_method": sales[0].payment_option,
+                "currency": sales[0].currency,
+                "items" : [products[productName] for productName in products.keys()]
+            })
+        
+        
+        return groupedSales
     
     def __str__(self):
         return f"{self.cart} : {self.product_name}"

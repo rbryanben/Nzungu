@@ -20,6 +20,7 @@ def authorization_required(func):
         if "Authorization" not in request.headers:
             return JsonResponse({
                 "error" : "'Authorization' header is required",
+                "action" : "AUTH_REQUIRED",
                 "timestamp" : datetime.now().isoformat()
             },safe=False,status=400)
             
@@ -40,6 +41,7 @@ def authorization_required(func):
         if 'Item' not in item:
             return JsonResponse({
                 "error" : "Invalid authorization token",
+                "action" : "AUTH_REQUIRED",
                 "timestamp" : datetime.now().isoformat()
             },safe=False,status=401)
             
@@ -51,6 +53,7 @@ def authorization_required(func):
         if iso_created + timedelta(hours=6) < datetime.now():
             return JsonResponse({
                 "error" : "Authorization token has expired",
+                "action" : "AUTH_REQUIRED",
                 "timestamp" : datetime.now().isoformat()
             },safe=False,status=403)
         

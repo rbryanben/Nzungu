@@ -65,3 +65,32 @@ export function handleAxiosError(error, options = {}) {
 
   return null;
 }
+
+
+export function formatTwoDecimals(value) {
+    // Ensure the value is a number
+    const number = Number(value);
+    if (isNaN(number)) {
+        throw new Error("Invalid number");
+    }
+    // Return the number with 2 decimal places
+    return number.toFixed(2);
+}
+
+export function isoToHumanReadable(isoString) {
+    const date = new Date(isoString);
+
+    // Options for formatting
+    const options = {
+        weekday: 'long',      // "Monday"
+        year: 'numeric',      // "2025"
+        month: 'long',        // "August"
+        day: 'numeric',       // "20"
+        hour: '2-digit',      // "04 PM"
+        minute: '2-digit',    // "45"
+        second: '2-digit',    // "30"
+        hour12: true           // 12-hour format
+    };
+
+    return date.toLocaleString('en-US', options);
+}

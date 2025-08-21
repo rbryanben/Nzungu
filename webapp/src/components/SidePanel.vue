@@ -22,7 +22,7 @@
             </div>
             <div class="summary">
                 <div>Sub Total</div>
-                <div style="margin-left: auto;">$<b>{{this.$store.state.currency === 'ZWG' ? this.$store.getters['cart/cart_subtotal'].subtotal_zwg : this.$store.getters['cart/cart_subtotal'].subtotal_usd }}</b></div>
+                <div style="margin-left: auto;">$<b>{{ cartTotal }}</b></div>
                 <div>Tax</div>
                 <div style="margin-left: auto;">$<b>{{this.$store.state.currency === 'ZWG' ? this.$store.getters['cart/cart_subtotal'].tax_zwg : this.$store.getters['cart/cart_subtotal'].tax_usd }}</b></div>
             </div>
@@ -277,6 +277,7 @@
 <script>
     import ProductSmall from './ProductSmall.vue';
     import PlainButton from './PlainButton.vue';
+import { formatTwoDecimals } from '@/utils/common';
     
     export default {
         name : 'SidePanel',
@@ -300,10 +301,10 @@
                 const currency = this.$store.state.currency
                 const cart = this.$store.getters['cart/cart_subtotal']
                 if (currency === 'ZWG') {
-                    return cart.subtotal_zwg + cart.tax_zwg
+                    return formatTwoDecimals(cart.subtotal_zwg + cart.tax_zwg)
                 } 
                 else {
-                    return cart.subtotal_usd + cart.tax_usd
+                    return formatTwoDecimals(cart.subtotal_usd + cart.tax_usd)
                 }
             }
         },

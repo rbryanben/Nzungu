@@ -6,7 +6,8 @@ export default {
   // State 
   state: () => ({
     products: [],
-    filters: []
+    filters: [],
+    last_fetched: null
   }),
   // Mutations
   mutations: {
@@ -14,7 +15,8 @@ export default {
         state.products = products
     },
     setFilters(state,filters){
-      state.filters = filters
+      state.filters = filters.filters
+      state.last_fetched = filters.timestamp
     }
   },
   // Actions

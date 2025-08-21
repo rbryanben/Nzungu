@@ -3,45 +3,19 @@
         <!-- Toolbar -->
         <ToolBar @on_search_text_changed="onSearchTextChanged" />
         <div class="bottom-page-wrapper">
-            <!-- Summary -->
-            <div class="bottom">
-                <!-- Summary Section -->
-                <div class="summary">
-                    <div v-for="filter in $store.getters['inventory/get_filters']" :key="filter.ref" class="tile-wrapper">
-                        <SummaryTile
-                            @click="setFilter(filter.value)"
-                            :caption="filter.name"
-                            :subtext="filter.subtext"
-                            :count="filter.stock_count" 
-                            :theme="filter.theme"
-                            :icon="filter.icon"
-                            :selected="filter.value === this.filter"
-                            v-on:on_search_text_changed="onSearchTextChanged"/>
-                    </div>
-                </div>
-            </div>
             <!-- Inventory Overview -->
             <div class="inventory-overview-wrapper">
                 <div class="top">
                     <div class="title">
-                        Inventory Overview
+                        Daily Sales
                     </div>
                     <div class="filter">
-                        <select v-model="filter">
-                            <option value="*">All Stock</option>
-                            <option value="in-stock">In Stock</option>
-                            <option value="out-of-stock">Out of Stock</option>
-                            <option value="low-stock">Low Stock</option>
-                            <option value="expired">Expired</option>
-                            <option value="almost-expired">Almost Expired</option>
+                        <select v-model="period">
+                            <option value="day">Today's Sales</option>
+                            <option value="two-days">Yesterdays Sales</option>
+                            <option value="week">Weekly Sales</option>
+                            <option value="month">Monthly Sales</option>
                         </select>
-                    </div>
-                    <div class="add-product" @click="addProduct">
-                        <div class="button-wrapper">
-                            <PlainButton  
-                                title="Add Item"
-                                text="Add Item"/>
-                        </div>
                     </div>
                 </div>
                 <div class="inventory-list-header">
@@ -58,61 +32,58 @@
                         Description 
                     </div>
                     <div class="item">
-                        Filter
+                        Count
                     </div>
                     <div class="item">
-                        Price USD
+                        PayMethod
                     </div>
                     <div class="item">
-                        Price ZWG
+                        Currency
                     </div>
                     <div class="item">
-                        Sold
+                        Unit Price
                     </div>
                     <div class="item">
-                        Reorder
-                    </div>
-                    <div class="item">
-                        Stock
+                        Total Price
                     </div>
                 </div>
                 <div class="inventory-list">
-                    <div 
-                        @click="editProduct(product.ref)"
-                        v-for="(product,index) in filtered_inventory"  
-                        :key="product.ref" 
-                        class="inventory-item">
-                        <div class="item">
-                            <b>{{index + 1}}</b>
+                    <span
+                        v-for="cart in carts"
+                        :key="cart.ref">
+                        <div class="group-sale">
+                            {{isoToHumanReadable(cart.timestamp)}}
                         </div>
-                        <div class="item">
-                            <img :src="product.image_url" />
+                        <div v-for="(product,index) in cart.items" :key="cart.ref + product.ref" class="inventory-item">
+                            <div class="item">
+                                <b>{{index}}</b>
+                            </div>
+                            <div class="item">
+                                <img :src="product.image_url" />
+                            </div>
+                            <div class="item">
+                                {{product.name}}
+                            </div>
+                            <div class="item">
+                                {{product.description}}
+                            </div>
+                            <div class="item">
+                                x{{product.count}}
+                            </div>
+                            <div class="item">
+                                {{cart.payment_method}}
+                            </div>
+                            <div class="item">
+                                {{cart.currency}}
+                            </div>
+                            <div class="item">
+                                ${{cart.currency === 'USD' ? formatTwoDecimals_(product.price_usd) : formatTwoDecimals_(product.price_zwg) }}
+                            </div>
+                            <div class="item">
+                                ${{cart.currency === 'USD' ?  formatTwoDecimals_(product.price_usd * product.count) : formatTwoDecimals_(product.price_zwg * product.count)}}
+                            </div>
                         </div>
-                        <div class="item">
-                            {{product.name}}
-                        </div>
-                        <div class="item">
-                            {{product.description}}
-                        </div>
-                        <div class="item">
-                            {{product.filter}}
-                        </div>
-                        <div class="item">
-                            USD{{product.price_usd}}
-                        </div>
-                        <div class="item">
-                            ZWG{{product.price_zwg}}
-                        </div>
-                        <div class="item">
-                            {{product.sold }}
-                        </div>
-                        <div class="item">
-                            {{ product.reorder_point }}
-                        </div>
-                        <div class="item">
-                            {{product.in_stock}}
-                        </div>
-                    </div>
+                    </span>
                 </div>
             </div>
             <!-- Space at the bottom -->
@@ -133,6 +104,7 @@
         height: calc(100vh - 50px);
         overflow-y: scroll;
         overflow-x: hidden;
+        margin-top: 5px;
     }
 
     .summary{
@@ -141,6 +113,14 @@
         padding: 10px;
         width: calc(100vw - 50px);
         overflow-x: scroll;
+    }
+
+    .group-sale {
+        margin-left: 20px;
+        margin-top: 20px;
+        font-size: 0.9rem;
+        font-weight: bold;
+        margin-bottom: 10px;
     }
     
     .inventory-overview-wrapper {
@@ -155,7 +135,7 @@
 
     .inventory-overview-wrapper .top {
         display: grid;
-        grid-template-columns: auto 140px 100px;
+        grid-template-columns: auto 140px;
         grid-column-gap: 10px;
     }
 
@@ -178,11 +158,11 @@
     .inventory-list-header {
         margin-top: 15px;
         display: grid;
-        grid-template-columns: 0.5fr 0.75fr 2.9fr 2.2fr 1fr 1.05fr 1.05fr 1fr 1fr 1fr;
+        grid-template-columns: 0.5fr 0.75fr 2.9fr 2.2fr 1fr 1.05fr 1.05fr 1fr 1fr;
         font-size: 0.9rem;
         background-color: #F5F5F5;
         height: 40px;
-        padding-left: 15px;
+        padding-left: 40px;
         border-top-left-radius: 8px;
         border-top-right-radius: 8px;
         border: solid 1.2px rgba(114, 114, 114, 0.067);
@@ -197,12 +177,12 @@
 
     .inventory-item {
         display: grid;
-        grid-template-columns: 0.5fr 0.75fr 2.9fr 2.2fr 1fr 1.05fr 1.05fr 1fr 1fr 1fr;
+        grid-template-columns: 0.5fr 0.75fr 2.9fr 2.2fr 1fr 1.05fr 1.05fr 1fr 1fr;
         font-size: 0.9rem;
         height: 50px;
-        padding-left: 15px;
+        padding-left: 40px;
         background-color: white;
-        border-bottom: solid 1.2px rgba(136, 136, 136, 0.067);
+        border-bottom: solid 1.2px rgba(136, 136, 136, 0.179);
         cursor: pointer;
         transition: all 0.1s ease-in;
     }
@@ -320,7 +300,7 @@
             height: 40px;
             padding-left: 15px;
             background-color: white;
-            border-bottom: solid 1.2px rgba(136, 136, 136, 0.067);
+            border-bottom: solid 1.2px rgba(136, 136, 136, 0.204);
             cursor: pointer;
             transition: all 0.1s ease-in;
         }
@@ -355,10 +335,12 @@
     import ToolBar from '@/components/ToolBar.vue';
     import SummaryTile from '@/components/SummaryTile.vue';
     import PlainButton from '@/components/PlainButton.vue';
-    import { formatTwoDecimals } from '@/utils/common';
+    import { formatTwoDecimals, isoToHumanReadable } from '@/utils/common';
+    import { getTellerSales } from '@/repo/SaleRepo';
+    import { notify_failed } from '@/utils/notifications';
     
     export default {
-        name : "InventoryTab",
+        name : "ViewSalesTab",
         components: {
             LeftIconedInput,
             ToolBar,
@@ -367,65 +349,34 @@
         },
         data(){
             return {
-                filter : "*",
-                searchText: ""
-            }
-        },
-        computed : {
-            filtered_inventory(){
-                
-                let products = this.$store.getters['sales/get_products_list']
-
-                products = products.filter(product => {
-                    return (
-                        product.name.toLowerCase().includes(this.searchText.toLowerCase()) ||
-                        product.ref.toLowerCase().includes(this.searchText.toLowerCase())  ||
-                        product.description.toLowerCase().includes(this.searchText.toLowerCase())
-                    )
-                })
-
-                // All selected 
-                if (this.filter === "*"){
-                    return products  
-                }
-
-                // Apply filter 
-                products = products.filter(item => {
-                    
-                    // Value to set
-                    if (item.filter == null || item.filter.value === null){
-                        return false
-                    }
-
-                    // Return the filter
-                    return item.filter === this.filter
-                })
-                
-                return products
+                searchText: "",
+                period: "day",
+                carts: []
             }
         },
         methods: {
             onSearchTextChanged(payload){
                 this.searchText = payload
             },
-            setFilter(filter){
-                this.filter = filter
+            onTellerSalesResult(success,payload){
+                if (!success){
+                    notify_failed(payload)
+                    return
+                }
+
+                this.carts = payload.carts
             },
-            addProduct(){
-                this.$router.push('add-product')
+            fetchTellerSales(){
+                getTellerSales(this.period,this.onTellerSalesResult)
             },
-            editProduct(ref){
-                this.$router.push({
-                    name: "edit-product",
-                    params: { reference: ref }
-                })
-            }
+            formatTwoDecimals_(amount){
+                return formatTwoDecimals(amount)
+            },
+            isoToHumanReadable: isoToHumanReadable       
         },
         mounted(){
-            // Fetch inventory
-            this.$store.dispatch("inventory/fetchInventory")
-            // Get filters for inventory
-            this.$store.dispatch('inventory/fetchFilters')
+            // Fetch teller sales
+            this.fetchTellerSales()
         }
     }
 </script>
