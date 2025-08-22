@@ -8,7 +8,7 @@
             <TwinSelector @on-select-changed="onCurrencyChange" />
         </div>
         <div class="notification-icon-wrapper">
-            <img src="/svg/bell.svg" alt="" class="bell">
+            <img src="/svg/rotate-reverse.svg" alt="" title="Refresh Page" @click="refreshPage" class="bell">
         </div>
         <div class="profile-wrapper">
             <div class="dp align-center">
@@ -49,8 +49,10 @@
     }
 
     img.bell {
-        height: 15px;
-        width: 15px;
+        height: 25px;
+        width: 25px;
+        opacity: 0.8;
+        cursor: pointer;
     }
 
     .profile-wrapper {
@@ -125,6 +127,9 @@
             },
             onCurrencyChange(){
 
+            },
+            refreshPage(){
+                this.$emit('refresh-page')
             }
         }
 

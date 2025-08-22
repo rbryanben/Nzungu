@@ -1,7 +1,7 @@
 <template>
     <div class="inventory-wrapper">
         <!-- Toolbar -->
-        <ToolBar @on_search_text_changed="onSearchTextChanged" />
+        <ToolBar @on_search_text_changed="onSearchTextChanged" @refresh-page="init()" />
         <div class="bottom-page-wrapper">
             <!-- Inventory Overview -->
             <div class="inventory-overview-wrapper">
@@ -77,10 +77,10 @@
                                 {{cart.currency}}
                             </div>
                             <div class="item">
-                                ${{cart.currency === 'USD' ? formatTwoDecimals_(product.price_usd) : formatTwoDecimals_(product.price_zwg) }}
+                                ${{cart.currency === 'USD' ? formatTwoDecimals(product.price_usd) : formatTwoDecimals(product.price_zwg) }}
                             </div>
                             <div class="item">
-                                ${{cart.currency === 'USD' ?  formatTwoDecimals_(product.price_usd * product.count) : formatTwoDecimals_(product.price_zwg * product.count)}}
+                                ${{cart.currency === 'USD' ?  formatTwoDecimals(product.price_usd * product.count) : formatTwoDecimals(product.price_zwg * product.count)}}
                             </div>
                         </div>
                     </span>
@@ -355,28 +355,33 @@
             }
         },
         methods: {
+            // Initialization method
+            init(){
+                // Get the sales by a teller
+                getTellerSales(this.period,this.onTellerSalesResult)
+            },
+            // When search text changes handler set the search text as that
             onSearchTextChanged(payload){
                 this.searchText = payload
             },
+            // Callback when teller sales are received
             onTellerSalesResult(success,payload){
+                // Failed request
                 if (!success){
                     notify_failed(payload)
                     return
                 }
 
+                // Success then set the cart
                 this.carts = payload.carts
             },
-            fetchTellerSales(){
-                getTellerSales(this.period,this.onTellerSalesResult)
-            },
-            formatTwoDecimals_(amount){
-                return formatTwoDecimals(amount)
-            },
+            // Method to format an amount to two decimal paces
+            formatTwoDecimals: formatTwoDecimals,
             isoToHumanReadable: isoToHumanReadable       
         },
         mounted(){
             // Fetch teller sales
-            this.fetchTellerSales()
+            this.init()
         }
     }
 </script>

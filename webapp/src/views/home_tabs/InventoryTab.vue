@@ -1,7 +1,7 @@
 <template>
     <div class="inventory-wrapper">
         <!-- Toolbar -->
-        <ToolBar @on_search_text_changed="onSearchTextChanged" />
+        <ToolBar @on_search_text_changed="onSearchTextChanged" @refresh-page="init" />
         <div class="bottom-page-wrapper">
             <!-- Summary -->
             <div class="bottom">
@@ -356,6 +356,7 @@
     import SummaryTile from '@/components/SummaryTile.vue';
     import PlainButton from '@/components/PlainButton.vue';
     import { formatTwoDecimals } from '@/utils/common';
+import { initCustomFormatter } from 'vue';
     
     export default {
         name : "InventoryTab",
@@ -372,6 +373,7 @@
             }
         },
         computed : {
+            // Filter for inventory from store
             filtered_inventory(){
                 
                 let products = this.$store.getters['sales/get_products_list']
@@ -405,27 +407,32 @@
             }
         },
         methods: {
+            // Init 
+            init(){
+                // Fetch inventory
+                this.$store.dispatch("inventory/fetchInventory")
+                // Get filters for inventory
+                this.$store.dispatch('inventory/fetchFilters')
+            },
+            // On search text change - seat the filter text as search text
             onSearchTextChanged(payload){
                 this.searchText = payload
             },
+            // Set filter
             setFilter(filter){
                 this.filter = filter
             },
+            // Add produc
             addProduct(){
                 this.$router.push('add-product')
             },
+            // Edit a product
             editProduct(ref){
-                this.$router.push({
-                    name: "edit-product",
-                    params: { reference: ref }
-                })
+                retun
             }
         },
         mounted(){
-            // Fetch inventory
-            this.$store.dispatch("inventory/fetchInventory")
-            // Get filters for inventory
-            this.$store.dispatch('inventory/fetchFilters')
+           this.init()
         }
     }
 </script>

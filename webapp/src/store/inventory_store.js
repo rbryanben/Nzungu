@@ -24,6 +24,7 @@ export default {
     fetchInventory({commit}){
         // Callback on inventory received
         let onInventoryReceived = (success,payload)=>{
+            console.log(payload)
             // Failed 
             if (success === false){
                 notify_failed(payload)

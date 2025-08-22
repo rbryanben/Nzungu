@@ -12,7 +12,7 @@
           </div>
       </div>
       <div class="panel">
-          <router-view></router-view>
+          <router-view @refresh-page="onRefreshPage" />
       </div>
   </div>
 </template>
@@ -87,6 +87,28 @@
             }
           },
           methods: {
+              init(){
+                // Fetch categories from the database 
+                this.$store.dispatch('sales/fetchAllCategories')
+                // Fetch products from the database 
+                this.$store.dispatch('sales/fetchAllProducts')
+                // Fetch employee details
+                this.$store.dispatch('sales/fetchEmployeeDetails')
+                // Setup socket io client
+                this.socketioClient =  io(ENDPOINTS.LIVE_UPDATES_ENDPOINT,{
+                    extraHeaders: {
+                        "Authorization" : getAuthorizationToken()
+                    }
+                })
+
+                // Create the client
+                this.socketioClient.on('connect',this.onSocketConnnect)
+                this.socketioClient.on('disconnect',this.onSocketDisconnected)
+                this.socketioClient.on('on-event',this.onSocketEvent)
+              },
+              onRefreshPage(){
+                this.init()
+              },
               select(name,route){
                 this.selected = name
                 this.$router.push({name : route})
@@ -115,13 +137,8 @@
                   }
 
               },
-              onSocketConnectionError(error){
-                console.log("socket error",error)
-              },
-              onOfflineSubmitted(success,payload){
-                  
-              },
               submitOfflineSales(){
+                  // context
                   const context = this
 
                   // Check socketio connection 
@@ -186,25 +203,7 @@
               }
           },
           mounted(){
-              // Fetch categories from the database 
-              this.$store.dispatch('sales/fetchAllCategories')
-              // Fetch products from the database 
-              this.$store.dispatch('sales/fetchAllProducts')
-              // Fetch employee details
-              this.$store.dispatch('sales/fetchEmployeeDetails')
-              // Setup socket io client
-              this.socketioClient =  io(ENDPOINTS.LIVE_UPDATES_ENDPOINT,{
-                  extraHeaders: {
-                      "Authorization" : getAuthorizationToken()
-                  }
-              })
-
-              // Create the client
-              this.socketioClient.on('connect',this.onSocketConnnect)
-              this.socketioClient.on('disconnect',this.onSocketDisconnected)
-              this.socketioClient.on('on-event',this.onSocketEvent)
-              this.socketioClient.on('connection_error',this.onSocketConnectionError)
-
+              this.init()
               // Set a background task for submitting sales
               setInterval(this.submitOfflineSales,15 * 1000)
           }
