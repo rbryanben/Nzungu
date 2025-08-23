@@ -9,11 +9,11 @@
             </div>
             <!-- Username -->
             <div style="margin-top: 40px;" class="input-wrapper">
-                <TitledInput title="Username" validator="username"  v-on:on-text-changed="(e)=>{formChange('username',e)}" placeholder="Type your username"/>
+                <TitledInput title="Username" validator="username" :fill="true"  v-on:on-text-changed="(e)=>{formChange('username',e)}" placeholder="Type your username"/>
             </div>
             <!-- Password -->
             <div class="input-wrapper">
-                <TitledInput  title="Password" validator="password" v-on:on-text-changed="(e)=>{formChange('password',e)}" type="password" placeholder="Type your password"/>
+                <TitledInput  title="Password" validator="password" :fill="true" v-on:on-text-changed="(e)=>{formChange('password',e)}" type="password" placeholder="Type your password"/>
             </div>
             <!-- Login -->
             <div class="button-wrapper">
@@ -31,6 +31,7 @@
     .card {
         padding: 30px 20px;
         top: 40%;
+        min-width: 250px;
     }
     .input-wrapper {
         margin-top: 15px;

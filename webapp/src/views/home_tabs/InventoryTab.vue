@@ -239,6 +239,10 @@
         object-fit: contain;
     }
 
+    .tile-wrapper:last-child{
+        margin-right: 20px;
+    }
+
     @media only screen and (max-width: 1200px) { 
     
         .inventory-wrapper {
@@ -296,7 +300,7 @@
         .inventory-list-header {
             margin-top: 15px;
             display: grid;
-            grid-template-columns: 0.5fr 0.75fr 2.9fr 2.2fr 1.8fr 1.05fr 1.05fr 1fr 1fr 1fr;
+            grid-template-columns: 0.5fr 0.75fr 3.2fr 2.2fr 1.8fr 1.2fr 1.3fr 0.8fr 0.8fr 0.8fr;
             font-size: 0.8rem;
             background-color: #F5F5F5;
             height: 40px;
@@ -315,7 +319,7 @@
 
         .inventory-item {
             display: grid;
-            grid-template-columns: 0.5fr 0.75fr 2.9fr 2.2fr 2.2fr 1.05fr 1.05fr 1fr 1fr 1fr;
+            grid-template-columns: 0.5fr 0.75fr 3.2fr 2.2fr 1.8fr 1.2fr 1.3fr 0.8fr 0.8fr 0.8fr;
             font-size: 0.8rem;
             height: 40px;
             padding-left: 15px;
@@ -342,9 +346,9 @@
         }
         
         .inventory-item  img {
-            height: 25px;
-            width: 25px;
-            object-fit: cover;
+            height: 30px;
+            width: 30px;
+            object-fit: contain;
         }
 }
 
@@ -428,7 +432,7 @@ import { initCustomFormatter } from 'vue';
             },
             // Edit a product
             editProduct(ref){
-                retun
+                return
             }
         },
         mounted(){

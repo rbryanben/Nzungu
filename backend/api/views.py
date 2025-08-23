@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from uuid import uuid4
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
@@ -11,6 +11,8 @@ from . import models as api_models
 from django.views.decorators.cache import cache_page
 from shared_models import models as shared_models
 from socket_io.helper import instance as socket_ioHelperInstance
+from dateutil.relativedelta import relativedelta
+from django.utils import timezone
 
 # Logging configuration
 logging.basicConfig(
@@ -425,6 +427,7 @@ def getProductUpdates(request):
 @authorization_required
 def getTellerSales(request):
     ref = str(uuid4())
+    
     # Check if period is defined 
     if 'period' not in request.GET:
         return JsonResponse({
@@ -432,9 +435,22 @@ def getTellerSales(request):
             "error" : "Parameter 'period' is not defined in request",
             "timestamp" : datetime.now().isoformat()
         })
-        
-    # Mock timestamp 
-    fromDate = datetime.fromisoformat("2025-08-01")
+    
+    # Today
+    period = request.GET.get('period')
+    fromDate = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
+    
+    # If the filter is 2 days then subtract 2 days
+    # If a week then subtrack a week 
+    # and month subtract a month
+    if period == 'two-days':
+        fromDate -= timedelta(days=1)
+    elif period == 'week':
+        fromDate -= timedelta(weeks=1)
+    elif period == 'month':
+        fromDate -= relativedelta(months=1)
+    
+    fromDate = timezone.make_aware(fromDate)
     
     return JsonResponse({
         "ref" : ref,

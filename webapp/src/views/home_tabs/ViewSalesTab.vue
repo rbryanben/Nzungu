@@ -10,7 +10,7 @@
                         Daily Sales
                     </div>
                     <div class="filter">
-                        <select v-model="period">
+                        <select v-model="period" @change="init">
                             <option value="day">Today's Sales</option>
                             <option value="two-days">Yesterdays Sales</option>
                             <option value="week">Weekly Sales</option>
@@ -135,7 +135,7 @@
 
     .inventory-overview-wrapper .top {
         display: grid;
-        grid-template-columns: auto 140px;
+        grid-template-columns: auto 100px;
         grid-column-gap: 10px;
     }
 
@@ -253,7 +253,7 @@
 
         .inventory-overview-wrapper .top {
             display: grid;
-            grid-template-columns: auto 110px 70px;
+            grid-template-columns: auto 110px 5px;
             grid-column-gap: 10px;
         }
 
@@ -276,7 +276,7 @@
         .inventory-list-header {
             margin-top: 15px;
             display: grid;
-            grid-template-columns: 0.5fr 0.75fr 2.9fr 2.2fr 1.8fr 1.05fr 1.05fr 1fr 1fr 1fr;
+            grid-template-columns: 0.5fr 0.75fr 3.4fr 2.2fr 0.8fr 1.05fr 1.05fr 1fr 1fr;
             font-size: 0.8rem;
             background-color: #F5F5F5;
             height: 40px;
@@ -295,7 +295,7 @@
 
         .inventory-item {
             display: grid;
-            grid-template-columns: 0.5fr 0.75fr 2.9fr 2.2fr 2.2fr 1.05fr 1.05fr 1fr 1fr 1fr;
+            grid-template-columns: 0.5fr 0.75fr 3.4fr 2.2fr 0.8fr 1.05fr 1.05fr 1fr 1fr;
             font-size: 0.8rem;
             height: 40px;
             padding-left: 15px;
@@ -322,9 +322,9 @@
         }
         
         .inventory-item  img {
-            height: 25px;
-            width: 25px;
-            object-fit: cover;
+            height: 30px;
+            width: 30px;
+            object-fit: contain;
         }
 }
 

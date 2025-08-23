@@ -103,7 +103,7 @@
             padding-bottom: 10px;
             border-bottom: solid 1.8px rgba(128, 128, 128, 0.116);
             display: grid;
-            grid-template-columns: 0.8fr 0.05fr 0.06fr 0.2fr;
+            grid-template-columns: auto 80px 70px 100px;
         }
 
         .search-box-wrapper{
@@ -116,10 +116,13 @@
 
 <script>
     import LeftIconedInput from './LeftIconedInput.vue';
+    import TwinSelector from './TwinSelector.vue';
+
     export default {
         name : "ToolBar",
         components: {
-            LeftIconedInput
+            LeftIconedInput,
+            TwinSelector
         },
         methods: {
             onSearchTextChanged(payload){
