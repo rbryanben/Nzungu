@@ -133,6 +133,14 @@
             },
             refreshPage(){
                 this.$emit('refresh-page')
+            },
+            onCurrencyChange(index){
+                if (index === 0){
+                    this.$store.commit('setCurrency', 'USD')
+                }
+                else {
+                    this.$store.commit('setCurrency', 'ZWG')       
+                }
             }
         }
 

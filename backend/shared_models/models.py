@@ -4,13 +4,14 @@ from uuid import uuid4
 import os
 import logging
 from api import models as api_models
-from django.db.models import Sum, QuerySet
+from django.db.models import Sum, QuerySet, F
 from django.db.models import Q
 from typing import List, Dict
 from socket_io.helper import instance as socket_ioHelperInstance
 from django.utils import timezone
 from datetime import timedelta
 from django.core.cache import cache
+
 
 
 class ReferencedObject(models.Model):
@@ -399,6 +400,66 @@ class ProductSale(ReferencedObject):
     @staticmethod
     def getSalesFromCart(cart : str) -> QuerySet['ProductSale']:
         return ProductSale.objects.filter(cart=cart)
+    
+    @staticmethod
+    def getTotalSales(user, fromDate):
+        # Cash sales USD
+        totalSalesCashUSD = ProductSale.objects.filter(
+            currency="USD",
+            teller=user,
+            payment_option="cash",
+            commited__gt=fromDate
+        ).aggregate(
+            total=Sum(F("count") * F("price_usd"))
+        )["total"] or 0
+
+        # Cash sales ZWG
+        totalSalesCashZWG = ProductSale.objects.filter(
+            currency="ZWG",
+            teller=user,
+            payment_option="cash",
+            commited__gt=fromDate
+        ).aggregate(
+            total=Sum(F("count") * F("price_zwg"))
+        )["total"] or 0
+
+        # Non-cash (anything not cash) USD
+        totalSalesNonCashUSD = ProductSale.objects.filter(
+            currency="USD",
+            teller=user,
+            commited__gt=fromDate
+        ).exclude(payment_option="cash").aggregate(
+            total=Sum(F("count") * F("price_usd"))
+        )["total"] or 0
+
+        # Non-cash (anything not cash) ZWG
+        totalSalesNonCashZWG = ProductSale.objects.filter(
+            currency="ZWG",
+            teller=user,
+            commited__gt=fromDate
+        ).exclude(payment_option="cash").aggregate(
+            total=Sum(F("count") * F("price_zwg"))
+        )["total"] or 0
+
+        return {
+            "cash_usd": {
+                "total": totalSalesCashUSD,
+                "total_yesterday": totalSalesCashUSD,  # TODO: replace with real yesterday query
+            },
+            "cash_zwg": {
+                "total": totalSalesCashZWG,
+                "total_yesterday": totalSalesCashZWG,
+            },
+            "bank_usd": {  # really means non-cash
+                "total": totalSalesNonCashUSD,
+                "total_yesterday": totalSalesNonCashUSD,
+            },
+            "bank_zwg": {  # really means non-cash
+                "total": totalSalesNonCashZWG,
+                "total_yesterday": totalSalesNonCashZWG,
+            },
+        }
+        
     
     @staticmethod
     def getTellerSales(teller : api_models.User, fromDate : datetime) -> List[Dict]:

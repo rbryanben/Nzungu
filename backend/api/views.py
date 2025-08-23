@@ -452,8 +452,12 @@ def getTellerSales(request):
     
     fromDate = timezone.make_aware(fromDate)
     
+    # Also return the total daily sales 
+    salesStats = shared_models.ProductSale.getTotalSales(request.user,fromDate)
+    
     return JsonResponse({
         "ref" : ref,
         "carts" : shared_models.ProductSale.getTellerSales(request.user,fromDate),
+        "sales" : salesStats,
         "timestamp" : datetime.now().isoformat()
     }) 
