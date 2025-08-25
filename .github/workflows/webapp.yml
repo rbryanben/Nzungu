@@ -6,7 +6,7 @@ name: Build and deploy Nzungu application
 # Event
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "production" ]
 
 # Job
 jobs:

@@ -1,0 +1,25 @@
+name: Live Updates Deployment
+
+on:
+    push:
+        branches: 
+            - main
+
+jobs:
+    build-container:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            # Build live updates 
+            - name: Build Live Updates Service
+              run: |
+                cd live-updates
+                docker build -t 944752351692.dkr.ecr.eu-west-1.amazonaws.com/live-updates-nzungu .
+
+            # List the images 
+            - name: List Docker Images 
+              run: |
+                echo docker images -a
+
+    
