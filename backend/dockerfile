@@ -1,0 +1,20 @@
+# Base image
+FROM python:3.9-slim
+
+# Setup environment 
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Working directory
+WORKDIR /app
+COPY . .
+
+# Install dependencies 
+RUN pip3 install -r requirements.txt
+
+# Install gunicorn 
+RUN pip3 install gunicorn
+
+# CMD
+CMD gunicorn --bind 0.0.0.0:80 main.wsgi:application

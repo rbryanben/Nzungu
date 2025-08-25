@@ -5,3 +5,4 @@ socketio
 requests
 python-socketio[client]
 python-dateutil
+boto3
