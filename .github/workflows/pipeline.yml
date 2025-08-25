@@ -113,7 +113,9 @@ jobs:
               run: | 
                 ssh -i ~/.ssh/id_rsa rben@173.249.20.22 "
                     cd /apps
-                    git pull https://github.com/rbryanben/Nzungu.git
+                    rm -r prod-nzungu
+                    cd prod-nzungu
+                    git clone https://github.com/rbryanben/Nzungu.git
                     cd Nzungu/deployment
                     docker compose up
                 "
