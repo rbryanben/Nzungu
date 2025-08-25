@@ -31,7 +31,6 @@
     input {
         border: none;
         min-height: 30px;
-        min-width: 300px;
         outline: solid 1.8px rgba(128, 128, 128, 0.181);
         background-color: rgba(163, 163, 163, 0.084);
         border-radius: 5px;

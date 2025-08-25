@@ -2,7 +2,33 @@
     <div class="inventory-wrapper">
         <!-- Toolbar -->
         <ToolBar @on_search_text_changed="onSearchTextChanged" @refresh-page="init()" />
+
         <div class="bottom-page-wrapper">
+            <!-- Summary Wrapper -->
+            <div class="summary-wrapper">
+                <div class="summary-item">
+                    <CurrencyValueTile
+                        currency="USD"
+                        :amount="total_cash_usd" />
+                </div>
+                <div class="summary-item">
+                    <CurrencyValueTile
+                        currency="ZWG"
+                        :amount="total_cash_zwg" />
+                </div>
+                <div class="summary-item">
+                    <CurrencyValueTile
+                        currency="USD"
+                        title="Total Bank"
+                        :amount="total_bank_usd" />
+                </div>
+                <div class="summary-item">
+                    <CurrencyValueTile
+                        currency="ZWG"
+                        title="Total Bank"
+                        :amount="total_bank_zwg" />
+                </div>
+            </div>
             <!-- Inventory Overview -->
             <div class="inventory-overview-wrapper">
                 <div class="top">
@@ -10,7 +36,7 @@
                         Daily Sales
                     </div>
                     <div class="filter">
-                        <select v-model="period">
+                        <select v-model="period" @change="init">
                             <option value="day">Today's Sales</option>
                             <option value="two-days">Yesterdays Sales</option>
                             <option value="week">Weekly Sales</option>
@@ -107,7 +133,7 @@
         margin-top: 5px;
     }
 
-    .summary{
+    .summary-wrapper {
         display: flex;
         column-gap: 10px;
         padding: 10px;
@@ -135,7 +161,7 @@
 
     .inventory-overview-wrapper .top {
         display: grid;
-        grid-template-columns: auto 140px;
+        grid-template-columns: auto 100px 50px;
         grid-column-gap: 10px;
     }
 
@@ -253,7 +279,7 @@
 
         .inventory-overview-wrapper .top {
             display: grid;
-            grid-template-columns: auto 110px 70px;
+            grid-template-columns: auto 110px 5px;
             grid-column-gap: 10px;
         }
 
@@ -276,7 +302,7 @@
         .inventory-list-header {
             margin-top: 15px;
             display: grid;
-            grid-template-columns: 0.5fr 0.75fr 2.9fr 2.2fr 1.8fr 1.05fr 1.05fr 1fr 1fr 1fr;
+            grid-template-columns: 0.5fr 0.75fr 3.4fr 2.2fr 0.8fr 1.05fr 1.05fr 1fr 1fr;
             font-size: 0.8rem;
             background-color: #F5F5F5;
             height: 40px;
@@ -295,7 +321,7 @@
 
         .inventory-item {
             display: grid;
-            grid-template-columns: 0.5fr 0.75fr 2.9fr 2.2fr 2.2fr 1.05fr 1.05fr 1fr 1fr 1fr;
+            grid-template-columns: 0.5fr 0.75fr 3.4fr 2.2fr 0.8fr 1.05fr 1.05fr 1fr 1fr;
             font-size: 0.8rem;
             height: 40px;
             padding-left: 15px;
@@ -322,9 +348,9 @@
         }
         
         .inventory-item  img {
-            height: 25px;
-            width: 25px;
-            object-fit: cover;
+            height: 30px;
+            width: 30px;
+            object-fit: contain;
         }
 }
 
@@ -338,6 +364,7 @@
     import { formatTwoDecimals, isoToHumanReadable } from '@/utils/common';
     import { getTellerSales } from '@/repo/SaleRepo';
     import { notify_failed } from '@/utils/notifications';
+    import CurrencyValueTile from '@/components/CurrencyValueTile.vue';
     
     export default {
         name : "ViewSalesTab",
@@ -345,13 +372,29 @@
             LeftIconedInput,
             ToolBar,
             SummaryTile,
-            PlainButton
+            PlainButton,
+            CurrencyValueTile
         },
         data(){
             return {
                 searchText: "",
                 period: "day",
-                carts: []
+                carts: [],
+                sales: null
+            }
+        },
+        computed: {
+            total_cash_usd(){
+                return this.sales && this.sales.cash_usd ? this.sales.cash_usd.total: 0
+            },
+            total_cash_zwg(){
+                return this.sales && this.sales.cash_zwg ? this.sales.cash_zwg.total : 0
+            },
+            total_bank_usd(){
+                return this.sales && this.sales.bank_usd ? this.sales.bank_usd.total : 0
+            },
+            total_bank_zwg(){
+                return this.sales && this.sales.bank_zwg ? this.sales.bank_zwg.total : 0
             }
         },
         methods: {
@@ -374,6 +417,7 @@
 
                 // Success then set the cart
                 this.carts = payload.carts
+                this.sales = payload.sales
             },
             // Method to format an amount to two decimal paces
             formatTwoDecimals: formatTwoDecimals,

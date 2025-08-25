@@ -10,6 +10,9 @@
           <div class="tile" :class="{'selected' : selected === 'inventory'}" @click="select('inventory','inventory')"  title="Shop Inventory">
               <img src="/svg/cart-flatbed.svg" alt="">
           </div>
+          <div class="tile" :class="{'selected' : selected === 'logout'}" @click="logout"  title="Logout">
+              <img src="/svg/arrow-right-from-bracket.svg" alt="">
+          </div>
       </div>
       <div class="panel">
           <router-view @refresh-page="onRefreshPage" />
@@ -57,6 +60,7 @@
     width: 18px;
     height: 18px;
     margin: auto;
+    object-fit: contain;
   }
 
   @media only screen and (max-width: 1200px) {
@@ -141,10 +145,6 @@
                   // context
                   const context = this
 
-                  // Check socketio connection 
-                  if (!this.socketioClient.connected){
-                    this.socketioClient.connect()
-                  }
                   // Check if there are offline sales 
                   const offlineSales = localStorage.getItem('LOCAL_SALES_CACHE')
                   // If object-fi
@@ -200,6 +200,13 @@
                       )
                   });
 
+              },
+              logout(){
+                  // Clear any cart 
+                  this.$store.dispatch('cart/clearCart')
+                  // Clear authorization token
+                  localStorage.removeItem('authorization')
+                  window.location.replace('/login')
               }
           },
           mounted(){
