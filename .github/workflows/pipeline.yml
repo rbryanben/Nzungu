@@ -1,0 +1,119 @@
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    # 
+    # Build stage 
+
+    # Build live-updates and commit to ECR
+    build-live-updates:        
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            # Setup AWS
+            - name: Configure AWS Credentials
+              uses: aws-actions/configure-aws-credentials@v4.3.1
+              with:
+                aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                aws-region: af-south-1
+
+            # Build live updates 
+            - name: Build Live Updates Service
+              run: |
+                cd live-updates
+                docker build -t 944752351692.dkr.ecr.eu-west-1.amazonaws.com/live-updates-nzungu:latest .
+
+            # Push to ECR
+            - name: Push to ECR 
+              run: |
+                aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin 944752351692.dkr.ecr.eu-west-1.amazonaws.com
+                docker push 944752351692.dkr.ecr.eu-west-1.amazonaws.com/live-updates-nzungu:latest
+
+    # Build and commit backend application to ECR
+    build-backend:
+        runs-on: ubuntu-latest
+        steps:
+            # Checkout
+            - uses: actions/checkout@v4
+
+            # Setup AWS
+            - name: Configure AWS Credentials
+              uses: aws-actions/configure-aws-credentials@v4.3.1
+              with:
+                aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                aws-region: af-south-1
+
+            # Build the container 
+            - name: Build backend container
+              run: |
+                cd backend 
+                docker build -t 944752351692.dkr.ecr.eu-west-1.amazonaws.com/backend-nzungu:latest .
+            
+            # Push the container to ECR
+            - name: Push to ECR
+              run: |
+                aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin 944752351692.dkr.ecr.eu-west-1.amazonaws.com
+                docker push 944752351692.dkr.ecr.eu-west-1.amazonaws.com/backend-nzungu:latest
+
+    # Build and push contents to S3 bucket
+    build-webapp:
+        # OS
+        runs-on: ubuntu-latest
+        needs: [build-live-updates, build-backend]
+        steps:
+            # Checkout to branch 
+            - uses: actions/checkout@v4
+            
+            # Setup nodejs
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                node-version: 18
+
+            # Build frontend application
+            - name: Build Webapp
+              run: |
+                cd webapp
+                npm install
+                npm run build
+
+            # Upload frontend application to S3 Bucket
+            - uses: jakejarvis/s3-sync-action@master
+              env:
+                AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+                AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                AWS_REGION: 'af-south-1'  
+                SOURCE_DIR: 'webapp/dist/'
+
+    #
+    # Deploy phase
+    deploy-live-updates:
+        runs-on: ubuntu-latest
+        needs: [build-live-updates, build-backend]
+        steps:
+            # Checkout to branch 
+            - uses: actions/checkout@v4
+
+            # Setup ssh
+            - name: Setup SSH
+              run: |
+                mkdir ~/.ssh
+                echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+                chmod 600 ~/.ssh/id_rsa
+                ssh-keyscan -H 173.249.20.22 >> ~/.ssh/known_hosts
+
+            # Deploy 
+            - name: Deploy application 
+              run: | 
+                ssh -i ~/.ssh/id_rsa rben@173.249.20.22 "
+                    cd /apps
+                    git pull https://github.com/rbryanben/Nzungu.git
+                    cd Nzungu/deployment
+                    docker compose up
+                "
