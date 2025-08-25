@@ -3,7 +3,7 @@ name: Backend Application
 on:
     push:
         branches:
-            - main
+            - production
 
 jobs:
     build-container:
