@@ -1,14 +1,15 @@
-name: Live Updates Deployment
+name: Backend Application
 
 on:
     push:
-        branches: 
-            - production
+        branches:
+            - main
 
 jobs:
     build-container:
         runs-on: ubuntu-latest
         steps:
+            # Checkout
             - uses: actions/checkout@v4
 
             # Setup AWS
@@ -19,15 +20,14 @@ jobs:
                 aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
                 aws-region: af-south-1
 
-            # Build live updates 
-            - name: Build Live Updates Service
+            # Build the container 
+            - name: Build Backend Container
               run: |
-                cd live-updates
-                docker build -t 944752351692.dkr.ecr.eu-west-1.amazonaws.com/live-updates-nzungu .
-
-            # Push to ECR
-            - name: Push to ECR 
+                cd backend 
+                docker build -t 944752351692.dkr.ecr.eu-west-1.amazonaws.com/backend-nzungu:latest .
+            
+            # Push the container to ECR
+            - name: Push to ECR
               run: |
                 aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin 944752351692.dkr.ecr.eu-west-1.amazonaws.com
-                docker push 944752351692.dkr.ecr.eu-west-1.amazonaws.com/live-updates-nzungu:latest
-    
+                docker push 944752351692.dkr.ecr.eu-west-1.amazonaws.com/backend-nzungu:latest
