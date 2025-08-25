@@ -32,7 +32,7 @@ jobs:
         npm install
         npm run build
 
-    # Upload frontend application to S3
+    # Upload frontend application to S3 Bucket
     - uses: jakejarvis/s3-sync-action@master
       with:
         args: --acl public-read --follow-symlinks --delete
