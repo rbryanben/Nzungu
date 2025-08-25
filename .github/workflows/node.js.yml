@@ -8,7 +8,7 @@ on:
   push:
     branches: [ "main" ]
 
-# Jobs
+# Job
 jobs:
   # Build frontend
   build-frontend:
