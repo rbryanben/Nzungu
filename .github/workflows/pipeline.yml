@@ -111,11 +111,24 @@ jobs:
             # Deploy 
             - name: Deploy application 
               run: | 
-                ssh -i ~/.ssh/id_rsa rben@173.249.20.22 "
+                ssh -i ~/.ssh/id_rsa rben@173.249.20.22 << 'EOF'
+                    mkdir -p /apps
                     cd /apps
-                    rm -r prod-nzungu
-                    cd prod-nzungu
-                    git clone https://github.com/rbryanben/Nzungu.git
-                    cd Nzungu/deployment
-                    docker compose up
-                "
+
+                    # Check if the repository folder exists
+                    if [ -d "prod-nzungu" ]; then
+                        echo "Repository exists. Pulling latest changes..."
+                        cd prod-nzungu
+                        git pull origin main  # adjust branch if needed
+                    else
+                        echo "Repository does not exist. Cloning..."
+                        git clone https://github.com/rbryanben/Nzungu.git prod-nzungu
+                        cd prod-nzungu
+                    fi
+
+                    # Go to deployment folder
+                    cd deployment || { echo "Deployment folder not found"; exit 1; }
+
+                    # Run docker compose
+                    docker compose up -d
+                    EOF
