@@ -15,6 +15,8 @@ services:
             PORT: 80
             ADMIN_KEY: live-updates-8d3922b7-cfca-4dd6-8cde-198c0c3649d8
     backend-service:
+        depends_on:
+            - live-updates-service
         image: 944752351692.dkr.ecr.eu-west-1.amazonaws.com/backend-nzungu:latest
         ports:
             - 80:80 
