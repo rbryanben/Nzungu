@@ -144,4 +144,4 @@ jobs:
             # Deploy 
             - name: Deploy application 
               run: |
-                ssh -i ~/.ssh/id_rsa rben@173.249.20.22 "cd ~/apps && sudo ~/apps/deploy.sh"
+                ssh -i ~/.ssh/id_rsa rben@173.249.20.22 "cd ~/apps && ~/apps/deploy.sh"
