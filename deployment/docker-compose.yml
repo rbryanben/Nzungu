@@ -26,7 +26,7 @@ services:
             MAX_FILE_UPLOAD_SIZE: 2000000
             EXG_USD_ZWG: 40 
             # Live Updates Service 
-            LIVE_UPDATES_ENDPOINT: "http://173.249.20.22:8001"
+            LIVE_UPDATES_ENDPOINT: "http://173.249.20.22:80"
             LIVE_UPDATES_KEY: "live-updates-8d3922b7-cfca-4dd6-8cde-198c0c3649d8"
             # AWS
             AWS_REAGION: ${AWS_REAGION}
