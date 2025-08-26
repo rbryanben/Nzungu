@@ -19,7 +19,7 @@ services:
             - live-updates-service
         image: 944752351692.dkr.ecr.eu-west-1.amazonaws.com/backend-nzungu:latest
         ports:
-            - 80:80 
+            - 8000:80 
         volumes:
             - /logs/nzungu-backend:/logs
         environment:
@@ -28,7 +28,7 @@ services:
             MAX_FILE_UPLOAD_SIZE: 2000000
             EXG_USD_ZWG: 40 
             # Live Updates Service 
-            LIVE_UPDATES_ENDPOINT: "http://173.249.20.22:51592"
+            LIVE_UPDATES_ENDPOINT: "https://live-updates.bradfeild.yanney.co.zw/2"
             LIVE_UPDATES_KEY: "live-updates-8d3922b7-cfca-4dd6-8cde-198c0c3649d8"
             # AWS
             AWS_REAGION: ${AWS_REAGION}
