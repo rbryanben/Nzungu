@@ -6,3 +6,4 @@ requests
 python-socketio[client]
 python-dateutil
 boto3
+mysqlclient==2.2.4
