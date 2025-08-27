@@ -31,7 +31,7 @@
     .card {
         padding: 30px 20px;
         top: 40%;
-        min-width: 250px;
+        min-width: 280px;
     }
     .input-wrapper {
         margin-top: 15px;
