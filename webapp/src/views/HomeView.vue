@@ -213,7 +213,7 @@
           mounted(){
               this.init()
               // Set a background task for submitting sales
-              setInterval(this.submitOfflineSales,15 * 1000)
+              //setInterval(this.submitOfflineSales,15 * 1000)
           }
   }
 </script>

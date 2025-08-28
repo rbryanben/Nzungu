@@ -118,7 +118,7 @@
     import { completeCart } from "@/repo/SaleRepo";
     import ProductModel from "@/models/ProductModel";
     import { generateUUID } from "@/utils/common";
-    import { notify_success, notify_cart_completed } from "@/utils/notifications";
+    import { notify_success, notify_cart_completed, notify_failed } from "@/utils/notifications";
     import ToolBar from "@/components/ToolBar.vue";
     
     export default {
@@ -177,6 +177,11 @@
                 // Stop the loading 
                 this.submitting_cart = false
 
+                // If failed then notify the failure
+                if (!success){
+                    return notify_failed(payload)
+                }
+                
                 // Generate new idempotance key 
                 this.idempotence_key = generateUUID()
                 
