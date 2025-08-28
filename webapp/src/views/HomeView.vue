@@ -27,6 +27,7 @@
     background-color: #f2f1f2;
     height: 100vh;
     width: 100vw;
+    overflow-y: hidden;
   }
 
   .tiles {
