@@ -6,4 +6,6 @@ requests
 python-socketio[client]
 python-dateutil
 boto3
+pillow
+rembg
 mysqlclient==2.2.4

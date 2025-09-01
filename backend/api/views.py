@@ -13,6 +13,7 @@ from shared_models import models as shared_models
 from socket_io.helper import instance as socket_ioHelperInstance
 from dateutil.relativedelta import relativedelta
 from django.utils import timezone
+from utils.common import resizeAndRemoveBackground
 
 # Logging configuration
 logging.basicConfig(
@@ -131,6 +132,9 @@ def file_upload(request):
             "ref" : ref,
             "timestamp" : datetime.now().isoformat()
         })
+        
+    # Resize the image
+    image = resizeAndRemoveBackground(file)
     
     # Upload to s3
     extension = file.name.split(".")[-1]
@@ -138,7 +142,7 @@ def file_upload(request):
     key = f"uploads/{filename}"
     
     try:
-        s3.upload_fileobj(file,FILE_S3_BUCKET,key)
+        s3.upload_fileobj(image,FILE_S3_BUCKET,key)
     except Exception as e:
         logging.error(f'{ref} - Failed to upload file to s3 - {e}')
         return JsonResponse({
