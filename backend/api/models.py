@@ -10,7 +10,6 @@ class User(models.Model):
     password = models.CharField(max_length=512)
     active = models.BooleanField(default=False)
     updated = models.DateTimeField(auto_now=True)
-    shop = models.ForeignKey("shared_models.Shop",on_delete=models.DO_NOTHING,null=True,blank=True)
     
     def __str__(self):
         return self.username

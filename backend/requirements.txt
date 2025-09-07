@@ -9,3 +9,4 @@ boto3
 pillow
 rembg
 mysqlclient==2.2.4
+onnxruntime

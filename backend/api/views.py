@@ -14,6 +14,7 @@ from socket_io.helper import instance as socket_ioHelperInstance
 from dateutil.relativedelta import relativedelta
 from django.utils import timezone
 from utils.common import resizeAndRemoveBackground
+from io import BytesIO
 
 # Logging configuration
 logging.basicConfig(
@@ -133,6 +134,7 @@ def file_upload(request):
             "timestamp" : datetime.now().isoformat()
         })
         
+        
     # Resize the image
     image = resizeAndRemoveBackground(file)
     
@@ -142,14 +144,18 @@ def file_upload(request):
     key = f"uploads/{filename}"
     
     try:
-        s3.upload_fileobj(image,FILE_S3_BUCKET,key)
+        inMemFile = BytesIO()
+        image.save(inMemFile,format="png")
+        inMemFile.seek(0)
+        
+        s3.upload_fileobj(inMemFile,FILE_S3_BUCKET,key)
     except Exception as e:
         logging.error(f'{ref} - Failed to upload file to s3 - {e}')
         return JsonResponse({
             'error' : 'Failed to upload file to s3 buckets',
             'ref' : ref,
             "timestamp" : datetime.now().isoformat()
-        })
+        },status=500)
         
     # Draft the url
     file_url = f"https://{FILE_S3_BUCKET}.s3.{AWS_REAGION}.amazonaws.com/{key}"

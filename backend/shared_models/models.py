@@ -3,7 +3,6 @@ from datetime import datetime
 from uuid import uuid4
 import os
 import logging
-from api import models as api_models
 from django.db.models import Sum, QuerySet, F
 from django.db.models import Q
 from typing import List, Dict
@@ -11,7 +10,6 @@ from socket_io.helper import instance as socket_ioHelperInstance
 from django.utils import timezone
 from datetime import timedelta
 from django.core.cache import cache
-
 
 
 class ReferencedObject(models.Model):
@@ -25,22 +23,6 @@ class ReferencedObject(models.Model):
     
     class Meta:
         abstract = True
-        
-class Shop(ReferencedObject):
-    name = models.CharField(max_length=64)
-    meta = models.CharField(max_length=512,null=True,blank=True)
-    last_updated = models.DateTimeField(auto_now=True)
-    
-    def __str__(self):
-        return self.name
-    
-    def toDict(self):
-        return {
-            'ref' : self.ref,
-            'name' : self.name,
-            'meta' : self.meta,
-            'last_updated' : self.last_updated
-        }
     
 
 class Upload(models.Model):
@@ -300,7 +282,7 @@ class Product(ReferencedObject):
         
 class Permission(models.Model):
     id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(api_models.User,on_delete=models.CASCADE)
+    user = models.ForeignKey("api.User",on_delete=models.CASCADE)
     permission = models.CharField(max_length=64)
     last_updated = models.DateTimeField(auto_now=True)
     
@@ -308,7 +290,7 @@ class Permission(models.Model):
         return f"{self.user.username} - {self.permission}"
     
     @staticmethod
-    def has_permission(user : api_models.User, permission : str) -> bool:
+    def has_permission(user : "api.User", permission : str) -> bool:
         return Permission.objects.filter(
             user=user,
             permission=permission
@@ -319,7 +301,7 @@ class Stock(ReferencedObject):
     product = models.ForeignKey(Product,on_delete=models.DO_NOTHING,null=True)
     expires = models.DateField()
     count = models.IntegerField()
-    user = models.ForeignKey(api_models.User,on_delete=models.DO_NOTHING,null=True)
+    user = models.ForeignKey("api.User",on_delete=models.DO_NOTHING,null=True)
     updated = models.DateTimeField(auto_now=True)
     buying_price_usd_each = models.FloatField(default=0)
     buying_price_zwg_each = models.FloatField(default=0)
@@ -359,7 +341,7 @@ class ProductSale(ReferencedObject):
     price_zwg = models.FloatField()
     fetched = models.DateTimeField()
     commited = models.DateTimeField()
-    teller = models.ForeignKey(api_models.User,on_delete=models.DO_NOTHING,null=True)
+    teller = models.ForeignKey("api.User",on_delete=models.DO_NOTHING,null=True)
     last_updated = models.DateTimeField(auto_now=True)
     cart = models.CharField(max_length=128,null=True)
     currency = models.CharField(max_length=16)
@@ -462,7 +444,7 @@ class ProductSale(ReferencedObject):
         
     
     @staticmethod
-    def getTellerSales(teller : api_models.User, fromDate : datetime) -> List[Dict]:
+    def getTellerSales(teller : "api.User", fromDate : datetime) -> List[Dict]:
         
         # All sales frm the given date 
         carts = ProductSale.objects.filter(
