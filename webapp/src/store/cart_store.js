@@ -107,7 +107,6 @@ export default {
         return referenceSet
     },
     cart_products_as_individual_list(state){
-        
         // List to return  
         let cart_list = []
 

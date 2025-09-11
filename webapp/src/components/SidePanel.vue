@@ -104,7 +104,7 @@
     .side-panel-wrapper .products-list {
         margin-left: 15px;
         margin-top: 15px;
-        height: 40%;
+        height: 45%;
         overflow-y: scroll;
         position: relative;
     }
@@ -243,6 +243,10 @@
             font-size: 0.6rem;
         }
 
+        .side-panel-wrapper .products-list {
+            height: 55%;
+        }
+
 
         .payment-type{
             width: 60px;
@@ -287,7 +291,7 @@ import { formatTwoDecimals } from '@/utils/common';
         },
         data(){
             return {
-                payment_type: "swipe"
+                payment_type: "cash"
             }
         },
         methods: {

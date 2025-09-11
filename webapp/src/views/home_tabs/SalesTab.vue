@@ -120,7 +120,8 @@
     import { generateUUID } from "@/utils/common";
     import { notify_success, notify_cart_completed, notify_failed } from "@/utils/notifications";
     import ToolBar from "@/components/ToolBar.vue";
-    
+    import { backed_error_handler } from "@/utils/common";
+
     export default {
         name: "SalesTab",
         components: {
@@ -177,9 +178,9 @@
                 // Stop the loading 
                 this.submitting_cart = false
 
-                // If failed then notify the failure
+                // Failed 
                 if (!success){
-                    return notify_failed(payload)
+                    return backed_error_handler(payload)
                 }
                 
                 // Generate new idempotance key 
@@ -221,9 +222,8 @@
                     this.idempotence_key,
                     this.payment_method,
                     this.$store.state.sales.employee.username,
-                    this.$store.state.sales.employee.shop.ref
+                    null
                 )
-            
             }
         },
         computed: {

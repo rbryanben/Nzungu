@@ -440,6 +440,7 @@ def getEmployeeDetails(request):
     
     return JsonResponse({
         "ref" : ref,
+        "code" : ErrorCode.NONE.value,
         "employee" : user.toDict(),
         "timestamp" : datetime.now().isoformat()
     })
@@ -671,3 +672,4 @@ def addStock(request):
         'product' : product.toDict(),
         'timestamp' : datetime.now().isoformat()
     })
+    

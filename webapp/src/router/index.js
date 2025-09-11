@@ -6,15 +6,16 @@ import InventoryTab from '@/views/home_tabs/InventoryTab.vue'
 import AddProductTab from '@/views/home_tabs/AddProductTab.vue'
 import ViewSalesTab from '@/views/home_tabs/ViewSalesTab.vue'
 import EditProductTab from '@/views/home_tabs/EditProductTab.vue'
+import EntryView from '@/views/EntryView.vue'
 
 const routes = [
   {
-    path: '/',
-    name: 'home',
+    path: '/console',
+    name: 'console',
     component: HomeView,
     children: [
       {
-        path: '/',
+        path: 'sales',
         name: 'sales',
         component: SalesTab
       },
@@ -44,6 +45,11 @@ const routes = [
     path: '/login',
     name: 'login',
     component: LoginView
+  },
+  {
+    path: '/',
+    name: 'entry',
+    component: EntryView
   }
 ]
 

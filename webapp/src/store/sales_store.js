@@ -57,6 +57,11 @@ export default {
         // callback 
         let onEmployeeDetailsReceived = (success,payload)=>{
             if (!success){
+              // If 401 received then dont notify 
+              if (payload.response && payload.response.status === 401){
+                return
+              }
+
               notify_failed("Failed to fetch employee details from server")
               return
             }
@@ -75,7 +80,13 @@ export default {
         let onProductsReceived = (success,payload)=>{
             // Failed 
             if (success === false){
-                notify_failed(payload)
+                // If 401 received then dont notify 
+                if (payload.response && payload.response.status === 401){
+                  return
+                }
+
+
+                notify_failed("Failed to fetch products from server")
                 return
             }
 
@@ -93,8 +104,12 @@ export default {
         let onCategoriesReceived = (success,payload)=>{
             // Failed 
             if (success === false){
-                notify_failed(payload)
-                return
+                // If 401 received then dont notify 
+                if (payload.response && payload.response.status === 401){
+                  return
+                }
+
+                return notify_failed("Failed to fetch product categories from backend")
             }
 
             // Set the products  

@@ -71,7 +71,7 @@ export function backed_error_handler(payload){
     
     // Get the response 
     const response = payload.response
-    
+
     // There is a response 
     if (response && response.data){
         

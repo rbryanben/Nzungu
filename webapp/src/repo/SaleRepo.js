@@ -139,8 +139,6 @@ export function completeCart(callback,cart_productModelList,currency,idempotence
     .then(res => res.data)
     .then(res => callback(true,res))
     .catch(err => {
-        // store localy 
-        //writeToLocalStore(payload)
-        callback(false,'Connection Failed - ' + idempotence_key)
+        callback(false,err)
     })
 }
