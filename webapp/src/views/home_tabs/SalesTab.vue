@@ -138,7 +138,7 @@
                 search_text : '',
                 submitting_cart: false,
                 idempotence_key : null,
-                payment_method : 'swipe'
+                payment_method : 'cash'
             }
         },
         mounted(){
