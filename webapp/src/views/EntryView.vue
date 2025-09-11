@@ -1,6 +1,6 @@
 <template>
     <div class="entry-view-wrapper">
-        <img src="/img/icons/logo.png">
+        <img src="/img/icons/android-chrome-512x512.png">
     </div>
 </template>
 
@@ -16,7 +16,7 @@
 
     img {
         transform: translateY(-10%);
-        height: 50px;
+        height: 80px;
         animation:  zoom_in ease-in 0.4s;
     }
 
@@ -42,7 +42,7 @@ import { notify_failed, notify_success } from '@/utils/notifications';
             // On employee result 
             onGetEmployeeResult(success,payload){
                 if (success){
-                    notify_success('Resumed previous authentication session')
+                    this.$router.replace({name: "sales"})
                 }
             },
             // initialization method 
