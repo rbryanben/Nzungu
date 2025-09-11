@@ -5,6 +5,7 @@ import SalesTab from '@/views/home_tabs/SalesTab.vue'
 import InventoryTab from '@/views/home_tabs/InventoryTab.vue'
 import AddProductTab from '@/views/home_tabs/AddProductTab.vue'
 import ViewSalesTab from '@/views/home_tabs/ViewSalesTab.vue'
+import EditProductTab from '@/views/home_tabs/EditProductTab.vue'
 
 const routes = [
   {
@@ -30,7 +31,7 @@ const routes = [
       {
         path : 'edit-product/:reference',
         name: 'edit-product',
-        component: SalesTab
+        component: EditProductTab
       },
       {
         path: 'view-sales',

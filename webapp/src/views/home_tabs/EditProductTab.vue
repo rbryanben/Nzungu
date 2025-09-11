@@ -4,84 +4,84 @@
         <div class="bottom-wrapper">
             <div class="left">
                 <div class="title">
-                    Add Product
+                    Add Product <span class="link-top-right" @click="toogleAddStockWindow(true)">Add Stock</span>
                 </div>
                 <div class="grid-two">
                     <div class="input-wrapper" style="grid-column: span 2;">
-                        <TitledInput 
+                        <TitledInput_v2
                             title="Product Reference"
                             :fill="true"
                             :editable="false"
                             placeholder="This feild is system generated"
-                            ref="reference_feild"/>
+                            v-model="product.ref"/>
                         <div class="input-hint">This feild is auto generated and cannot be filled in.</div>
                     </div>
                     <div class="input-wrapper" style="grid-column: span 2;">
-                        <TitledInput 
+                        <TitledInput_v2
                             title="Product Name"
                             :fill="true"
                             placeholder="Product name i.e. Giesha Bathing Soap 200g"
-                            @on-text-changed="e => payload.name = e"
-                            :editable="submitted || processing"/>
+                            v-model="product.name"
+                            :editable="!processing" />
                     </div>
                     <div class="input-wrapper" style="grid-column: span 2;">
-                        <TitledInput 
+                        <TitledInput_v2
                             title="Product Description"
                             :fill="true"
-                            :editable="submitted"
+                            :editable="!processing"
                             placeholder="Product description i.e Luxury bathing soap each"
-                            @on-text-changed="e => payload.description = e"/>
+                            v-model="product.description"/>
                     </div>
                     <div class="input-wrapper" style="grid-column: span 2;">
-                        <TitledSelect
+                        <TitledSelect_v2
                             title="Product Category"
                             placeholder="Select the category"
                             :fill="true"
-                            :editable="submitted || processing"
+                            :editable="!processing"
                             :options="category_options"
-                            @on-text-changed="e => payload.category = e"/>
+                            v-model="product.category"/>
                         <div class="input-hint">Please select the most appropriate category for this item. This helps ensure that your product or service is correctly grouped and easily discoverable by users browsing or searching within the platform.</div>
                     </div>
                     <div class="input-wrapper">
-                        <TitledInput 
+                        <TitledInput_v2
                             title="Price USD"
                             :fill="true"
-                            :editable="submitted || processing"
+                            :editable="!processing"
                             type="number"
                             placeholder="0"
                             validator="price"
-                            @on-text-changed="e => payload.price_usd = e"/>
+                            v-model="product.price_usd"/>
                         <div class="input-hint">Setting the ZWL price is not a reauirement after setting this value.</div>
                     </div>
                     <div class="input-wrapper">
-                        <TitledInput 
+                        <TitledInput_v2
                             title="Price ZWL"
                             :fill="true"
-                            :editable="submitted || processing"
+                            :editable="!processing"
                             placeholder="0"
                             type="number"
-                            validator="price"
-                            @on-text-changed="e => payload.price_zwg = e"/>
+                            validator="none"
+                            v-model="product.price_zwg"/>
                     </div>
                     <div class="input-wrapper">
-                        <TitledInput 
+                        <TitledInput_v2
                             title="Reorder Point"
                             :fill="true"
-                            :editable="submitted || processing"
+                            :editable="!processing"
                             placeholder="0"
                             type="number"
                             validator="price"
-                            @on-text-changed="e => payload.reorder_point = e"/>
+                            v-model="product.reorder_point"/>
                     </div>
                     <div class="input-wrapper">
-                        <TitledInput 
+                        <TitledInput_v2
                             title="Expiry Buffer (Days)"
                             :fill="true"
-                            :editable="submitted || processing"
+                            :editable="!processing"
                             placeholder="0"
                             type="number"
                             validator="price"
-                            @on-text-changed="e => payload.expiry_day_buffer = e"/>
+                            v-model="product.expiry_day_buffer"/>
                     </div>
                 </div>
             </div>
@@ -96,7 +96,7 @@
                     <TitledInput 
                         title="Select Image"
                         :fill="true"
-                        :editable="submitted || processing"
+                        :editable="!processing"
                         :value="reference"
                         type="file"
                         @on-change="onFileChange"/>
@@ -110,23 +110,31 @@
                             text="Cancel"
                             theme="warn"
                             @on-click="$router.back()"
-                            :disabled="processing"/>
+                            :disabled="processing || add_stock_submitting"/>
                     </div>
                     <div style="margin-left:20px;" class="button-wrapper">
                         <PlainButton 
-                            text="Create Product"
+                            text="Save Changes"
                             :loading="processing"
-                            @on-click="createProduct"
+                            @on-click="updateProduct"
                             theme="success"
-                            :disabled="!submitted || !form_valid"/>
+                            :disabled="!form_valid || add_stock_submitting"/>
                     </div>
                 </span>
             </div>
         </div>
+        
+        <!-- Additional Components -->
+        <PopupForm 
+            :product_reference="product.ref"
+            v-if="showAddStockWindow" 
+            @close-window="toogleAddStockWindow(false)"
+            @submitting="addStockFormSubmitting" />
     </div>
 </template>
 
 <style scoped>
+
     .bottom-wrapper {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -185,7 +193,19 @@
 
     .button-wrapper {
         margin-top: 15px;
-        width: 250px;
+        width: 100%;
+    }
+
+    
+    .link-top-right {
+        font-size: 0.7rem;
+        color: #4d99f7;
+        cursor: pointer;
+        margin-left: 5px;
+    }
+
+    .link-top-right:hover{
+        color: #2a5385;
     }
  </style>
 
@@ -193,19 +213,23 @@
     import ToolBar from '@/components/ToolBar.vue';
     import TitledInput from '@/components/TitledInput.vue';
     import { notify_failed, notify_success } from '@/utils/notifications';
-    import TitledSelect from '@/components/TitledSelect.vue';
     import PlainButton from '@/components/PlainButton.vue';
     import { uploadFile } from '@/repo/FilesRepo';
-    import { r_createProduct } from '@/repo/ProductsRepo';
-    import error_mappings from '@/utils/error_mappings'
+    import { r_updateProduct, r_getProduct } from '@/repo/ProductsRepo';
+    import { backed_error_handler } from '@/utils/common';
+    import TitledInput_v2 from '@/components/TitledInput_v2.vue';
+    import TitledSelect_v2 from '@/components/TitledSelect_v2.vue';
+    import PopupForm from '@/components/PopupForm.vue';
 
     export default {
-        name: "AddProductTab",
+        name: "EditProductTab",
         components: {
             ToolBar,
+            TitledSelect_v2,
+            PlainButton,
+            TitledInput_v2,
             TitledInput,
-            TitledSelect,
-            PlainButton
+            PopupForm
         },
         data(){
             return {
@@ -214,17 +238,19 @@
                 product_image: "/svg/images.svg",
                 file : null,
                 processing : false,
-                payload: {
+                add_stock_submitting: false,
+                product: {
                     "image_upload" : null,
-                    "category" : null,
+                    "category" : "",
                     "expiry_day_buffer" : 0,
                     "price_usd" : 0,
                     "price_zwg" : 0,
-                    "reference" : null,
-                    "name" : null,
-                    "description" : null,
+                    "ref" : "",
+                    "name" : "",
+                    "description" : "",
                     "reorder_point" : 0
-                }
+                },
+                showAddStockWindow : false
             }
         },
         computed: {
@@ -237,25 +263,60 @@
                     }
                 })
             },
-            submitted(){
-                return this.payload.reference === null
-            },
             form_valid(){
                 return (
-                    this.payload.category !== null &&
-                    this.payload.expiry_day_buffer !== null &&
-                    this.payload.price_usd !== null &&
-                    this.payload.price_usd > 0 &&
-                    this.payload.description !== null &&
-                    this.payload.description.length > 3 &&
-                    this.payload.name !== null &&
-                    this.payload.name.length > 3 &&
-                    this.payload.reorder_point !== null &&
-                    this.file !== null
+                    this.product.category !== null &&
+                    this.product.expiry_day_buffer !== null &&
+                    this.product.price_usd !== null &&
+                    this.product.price_usd > 0 &&
+                    this.product.description !== null &&
+                    this.product.description.length > 3 &&
+                    this.product.name !== null &&
+                    this.product.name.length > 3 &&
+                    this.product.reorder_point !== null
                 )
             }
         },
         methods: {
+            // Get the product from the backend 
+            init(){
+                // Get the product 
+                let productReference = this.$route.params.reference
+                r_getProduct(this.onGetProductResult,productReference)
+            },
+            // When the product result is returned
+            onGetProductResult(success,payload){
+                
+                // Failed
+                if (success == false){
+                    return backed_error_handler(payload)
+                }
+
+                // Success then set the product as the one from the response 
+                if (payload.product){
+                    // Product
+                    const product = payload.product
+
+                    // Map the response to that of the ui
+                    this.product = {
+                        ...this.product,
+                        category: product.category.ref,
+                        expiry_day_buffer: product.expiry_day_buffer,
+                        price_usd: product.price_usd,
+                        price_zwg: 0,
+                        ref: product.ref,
+                        name: product.name,
+                        description: product.description,
+                        reorder_point: product.reorder_point
+                    }
+
+                    // Set the existing image 
+                    this.product_image = product.image_url
+                    return
+                }
+                
+                notify_failed('Failed to process response from server')
+            },
             onFileChange(event){
                 const selectedFile = event.target.files[0]
 
@@ -270,78 +331,78 @@
                     };
                 }
             },
-            onProductCreated(success,payload){
+            onProductUpdateResult(success,payload){
+
                 // Stop processing 
                 this.processing = false
-
-                console.log(payload)
                 
-                // Response 
-                if (!success){
-                    
-                    // Get the response 
-                    const response = payload.response
-                    
-                    // There is a response 
-                    if (response && response.data){
-                        
-                        // Error has a code
-                        if (response.data.code){
-                            msg = error_mappings[response.data.code]
-                            return notify_failed(msg)
-                            
-                        }
-
-                        // Error has no code but error
-                        if (response.data && response.data.error){
-                            return notify_failed(response.data.error)
-                        }
-
-                        // Unhandled error 
-                        return notify_failed('Something went completely wrong!')
-                    }
+                // Handle error 
+                if (success === false){
+                    return backed_error_handler(payload)
                 }
 
-                // Set the reference
-                this.payload.reference = payload.product.ref
+                const updated = payload.product.after
 
-                // Set in the UI
-                this.$refs.reference_feild.setText(this.payload.reference)
+                // Map backend response → UI product
+                this.product = {
+                    ...this.product, // keep previous local fields like image_upload
+                    category: updated.category.ref,
+                    expiry_day_buffer: updated.expiry_day_buffer,
+                    price_usd: updated.price_usd,
+                    price_zwg: updated.price_zwg || 0,
+                    ref: updated.ref,
+                    name: updated.name,
+                    description: updated.description,
+                    reorder_point: updated.reorder_point,
+                    image_upload: null
+                }
 
-                notify_success(`Product Created - ${this.payload.reference}`)
+                // Update image if included
+                if (updated.image_url) {
+                    this.product_image = updated.image_url
+                }
+
+                // Remove the file to prevent another upload 
+                this.file = null
+
+                // Notify the success
+                notify_success(`Product Updated - ${this.product.ref}`)
             },
-            onFileUploadResult(success,payload){
+            onFileUploadResult(success,payload){                
                 // Not successful 
                 if (success === false){
-                    this.processing = false
-                    return notify_failed(payload)
+                    return backed_error_handler(payload)
                 }
 
                 // Set the data as the image upload data
-                this.payload.image_upload = payload.ref
+                this.product.image_upload = payload.ref
                 
                 // Create the product
-                r_createProduct(this.payload,this.onProductCreated)
+                r_updateProduct(this.product,this.product.ref,this.onProductUpdateResult)
                 
             },
-            createProduct(){
+            updateProduct(){
                 // Start loading 
                 this.processing = true
 
-                // Upload a file first and then commit data 
+                // Upload image if it is there
                 if (this.file){
-                    // Upload image is it hasnt
-                    if (!this.payload.image_upload){
-                        return uploadFile(this.file,this.onFileUploadResult)
-                    }
-
-                    // Create the product - image has already been upload
-                    r_createProduct(this.payload,this.onProductCreated)
+                    return uploadFile(this.file,this.onFileUploadResult)
                 }
+
+                // Create the product - image has already been upload
+                r_updateProduct(this.product,this.product.ref,this.onProductUpdateResult)
+            },
+            toogleAddStockWindow(show){
+                this.showAddStockWindow = show
+            },
+            addStockFormSubmitting(state){
+                this.add_stock_submitting = state
             }
-        },  
+        },
         mounted(){
-            
+            // Initialize
+            this.init()
         }
     }
 </script>

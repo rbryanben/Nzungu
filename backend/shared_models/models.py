@@ -41,7 +41,7 @@ class Upload(models.Model):
 
 class ProductCategory(ReferencedObject):
     name = models.CharField(max_length=128)
-    icon = models.CharField(max_length=32)
+    icon = models.CharField(max_length=32,null=True,blank=True)
     last_updated = models.DateTimeField(auto_now=True)
     
     def save(self, *args, **kwargs):
@@ -238,7 +238,8 @@ class Product(ReferencedObject):
                 "image_url" : self.image_uploaded.url,
                 "reorder_point" : self.reorder_point
             }
-        return {
+            
+        res = {
             "id" : self.id,
             "ref" : self.ref,
             "fetched" : datetime.now().isoformat(),
@@ -259,6 +260,8 @@ class Product(ReferencedObject):
             "expiry_day_buffer" : self.expiry_day_buffer,
             "filter" : self.filter
         }
+        
+        return res
     
     @staticmethod
     def getUsingRef(ref : str):

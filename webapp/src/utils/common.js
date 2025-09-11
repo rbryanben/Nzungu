@@ -1,4 +1,5 @@
 import { notify_failed } from "./notifications";
+import error_mappings from "./error_mappings.js"
 
 export function generateUUID() {
   return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
@@ -66,6 +67,30 @@ export function handleAxiosError(error, options = {}) {
   return null;
 }
 
+export function backed_error_handler(payload){
+    
+    // Get the response 
+    const response = payload.response
+    
+    // There is a response 
+    if (response && response.data){
+        
+        // Error has a code
+        if (response.data.code){
+            const msg = error_mappings[response.data.code]
+            return notify_failed(msg)
+            
+        }
+
+        // Error has no code but error
+        if (response.data && response.data.error){
+            return notify_failed(response.data.error)
+        }
+
+        // Unhandled error 
+        return notify_failed('Something went completely wrong!')
+    }
+}
 
 export function formatTwoDecimals(value) {
     // Ensure the value is a number
@@ -93,4 +118,21 @@ export function isoToHumanReadable(isoString) {
     };
 
     return date.toLocaleString('en-US', options);
+}
+
+export function getFormattedDate() {
+    const today = new Date();
+    let month = today.getMonth() + 1; // January is 0, so add 1
+    let day = today.getDate();
+    const year = today.getFullYear();
+
+    // Add leading zero for single-digit month or day
+    if (month < 10) {
+      month = '0' + month;
+    }
+    if (day < 10) {
+      day = '0' + day;
+    }
+
+    return `${month}/${day}/${year}`;
 }

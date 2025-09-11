@@ -6,6 +6,9 @@ from typing import Dict
 from datetime import datetime, timedelta
 from .models import User
 from shared_models import models as shared_models
+from uuid import uuid4
+import logging
+from .error_mappings import ErrorCode
 
 # AWS paramets 
 reagion = os.getenv('AWS_REAGION')
@@ -83,7 +86,6 @@ def authorization_required(func):
         return func(request)
     return inner
 
-
 def json_required(keys={}):
     def decorator(func,keys=keys):
         def inner(request,keys=keys):
@@ -100,7 +102,8 @@ def json_required(keys={}):
             
             if missingKeys != []:
                 return JsonResponse({
-                    "error" : "Missing keys",
+                    "code" : ErrorCode.MISSING_ATTRIBUTE.value,
+                    "error" : f'Request is missing keys',
                     "keys" : missingKeys
                 },safe=False,status=400)
             
@@ -132,4 +135,17 @@ def requires_permissions(permissions=[]):
             return func(request)
         return inner
     return decorator
-                
+
+def referenced_request(prefix=None):
+    def decorator(func,prefix=prefix):
+        def inner(request):
+            # Request reference 
+            request.ref = f"{prefix}-{uuid4()}"
+            
+            # Process 
+            logging.info(f"{request.ref} - {request.method=} {request.path=} {request.user=}")
+            response =  func(request)
+            logging.info(f"{request.ref} - {response.status_code=}")
+            return response
+        return inner
+    return decorator

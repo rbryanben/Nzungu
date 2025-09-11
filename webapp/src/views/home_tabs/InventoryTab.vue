@@ -432,7 +432,13 @@ import { initCustomFormatter } from 'vue';
             },
             // Edit a product
             editProduct(ref){
-                return
+                // Go to edit product tab
+                this.$router.push({
+                    name: "edit-product",
+                    params: {
+                        reference: ref
+                    }
+                })
             }
         },
         mounted(){

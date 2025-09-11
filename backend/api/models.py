@@ -19,8 +19,7 @@ class User(models.Model):
             'username' : self.username,
             'name' : self.name,
             'role' : self.role,
-            'updated' : self.updated.isoformat(),
-            'shop' : self.shop.toDict() if self.shop else None
+            'updated' : self.updated.isoformat()
         }
     
     def toDynamodbItem(self):

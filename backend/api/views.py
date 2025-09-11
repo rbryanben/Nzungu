@@ -6,7 +6,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 import boto3
 import logging
-from .decorators import authorization_required, json_required, requires_permissions
+from .decorators import authorization_required, json_required, requires_permissions, referenced_request
 from . import models as api_models
 from django.views.decorators.cache import cache_page
 from shared_models import models as shared_models
@@ -15,6 +15,7 @@ from dateutil.relativedelta import relativedelta
 from django.utils import timezone
 from utils.common import resizeAndRemoveBackground
 from io import BytesIO
+from .error_mappings import ErrorCode
 
 # Logging configuration
 logging.basicConfig(
@@ -31,7 +32,9 @@ DYNAMO_DB_TABLE = os.getenv('DYNAMO_DB_TABLE')
 s3 = boto3.client('s3')
 dynamo_db = boto3.client('dynamodb',region_name=AWS_REAGION)
 
+@referenced_request("health")
 def health(request):
+    ref = request.ref
     return JsonResponse({
         "application" : os.getenv("APPLICATION_NAME"),
         "timestamp" : datetime.now().isoformat()
@@ -39,10 +42,11 @@ def health(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
+@referenced_request("authenticate")
 @json_required(keys={'username','password'})
 def authenticate(request):
     # Request reference 
-    ref = str(uuid4()) 
+    ref = request.ref
     
     # Get the username and password
     username = request.json_body['username']
@@ -104,11 +108,12 @@ def authenticate(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
+@referenced_request("upload-file")
 @authorization_required
 @requires_permissions(['upload-file'])
 def file_upload(request):
     # Request reference 
-    ref = str(uuid4()) 
+    ref = request.ref
     
     # Check if the file is present in the request
     if 'file' not in  request.FILES:
@@ -177,10 +182,11 @@ def file_upload(request):
     
 @csrf_exempt
 @require_http_methods(['GET'])
+@referenced_request("get-products")
 @authorization_required
 def getProducts(request):
     # Request reference
-    ref = str(uuid4())
+    ref = request.ref
     request_time = datetime.now().isoformat()
     
     
@@ -200,13 +206,53 @@ def getProducts(request):
         "products" : s_products,
         "timestamp" : request_time
     }) 
-    
+
 @csrf_exempt
 @require_http_methods(['GET'])
+@referenced_request("get-product")
+@authorization_required
+def getProduct(request):
+    # Ref 
+    ref = request.ref
+    
+    # Check if reference is in request get 
+    if 'reference' not in request.GET:
+        return JsonResponse({
+            "code" : ErrorCode.MISSING_ATTRIBUTE.value,
+            "error" : "Key 'reference' was not found in request",
+            "objects" : ['reference'],
+            "timestamp" : datetime.now().isoformat(),
+            "ref" : ref
+        },status=400)
+    
+    # Get the product with the reference 
+    productReference = request.GET['reference']
+    product = shared_models.Product.getUsingRef(productReference)
+    
+    # If null return not found 
+    if not product:
+        return JsonResponse({
+            "code" : ErrorCode.PRODUCT_NOT_FOUND.value,
+            "error" : f"product with reference '{productReference}' was not found",
+            "objects" : [productReference],
+            "timestamp" : datetime.now().isoformat(),
+            "ref" : ref
+        },status=404)
+        
+    # Return the product 
+    return JsonResponse({
+        "product" : product.toDict(),
+        "timestamp" : datetime.now().isoformat(),
+        "ref" : ref
+    })
+        
+@csrf_exempt
+@require_http_methods(['GET'])
+@referenced_request("get-categories")
 @authorization_required
 def getCategories(request):
     # Reference
-    ref = str(uuid4())
+    ref = request.ref
     
     # Category 
     categories = shared_models.ProductCategory.objects.all()
@@ -245,10 +291,11 @@ def getCategories(request):
 @cache_page(60)
 @csrf_exempt
 @require_http_methods(['GET'])
+@referenced_request("get-product-stock-filters")
 @authorization_required
 def getProductStockFilters(request):
     # Reference
-    ref = str(uuid4())
+    ref = request.ref
     
     # Filter 
     filters = shared_models.ProductStockStatusFilter.objects.all()
@@ -266,12 +313,13 @@ def getProductStockFilters(request):
     
 @csrf_exempt
 @require_http_methods(["POST"])
+@referenced_request("create-product")
 @json_required(keys={"reference","name","description","category","price_usd","price_zwg","reorder_point","image_upload","expiry_day_buffer"})
 @authorization_required
 @requires_permissions(['create-product'])
 def createProduct(request):
     # Ref 
-    ref = str(uuid4())
+    ref = request.ref
     json_body = request.json_body
     request_time = datetime.now().isoformat()
     
@@ -320,12 +368,13 @@ def createProduct(request):
     
 @csrf_exempt
 @require_http_methods(['POST'])
+@referenced_request("complete-cart")
 @json_required(keys={'cart_items','currency','idempotence_key','payment_option','commited'})
 @authorization_required
 @requires_permissions(permissions=['commit-sale'])
 def completeCart(request):
     # ref 
-    ref = str(uuid4())
+    ref = request.ref
     
     # Json body
     json_body = request.json_body
@@ -383,9 +432,10 @@ def completeCart(request):
     
 @csrf_exempt
 @require_http_methods(['GET'])
+@referenced_request("get-employee-details")
 @authorization_required
 def getEmployeeDetails(request):
-    ref = str(uuid4())
+    ref = request.ref
     user : api_models.User = request.user
     
     return JsonResponse({
@@ -397,10 +447,11 @@ def getEmployeeDetails(request):
 
 @csrf_exempt
 @require_http_methods(['GET'])
+@referenced_request("get-product-updates")
 @authorization_required
 def getProductUpdates(request):
     # Ref 
-    ref = str(uuid4())
+    ref = request.ref
     
     # Check for the required keys 
     if 'last-fetched-date-iso' not in request.GET:
@@ -413,6 +464,7 @@ def getProductUpdates(request):
     # Parse the iso date 
     try:
         lastFetchedDateIso = datetime.fromisoformat(request.GET['last-fetched-date-iso'])
+        lastFetchedDateIso = timezone.make_aware(lastFetchedDateIso)
     except:
         return JsonResponse({
             "ref" : ref,
@@ -434,9 +486,10 @@ def getProductUpdates(request):
 
 @csrf_exempt
 @require_http_methods(['GET'])
+@referenced_request("get-teller-sales")
 @authorization_required
 def getTellerSales(request):
-    ref = str(uuid4())
+    ref = request.ref
     
     # Check if period is defined 
     if 'period' not in request.GET:
@@ -471,3 +524,150 @@ def getTellerSales(request):
         "sales" : salesStats,
         "timestamp" : datetime.now().isoformat()
     }) 
+    
+
+@csrf_exempt
+@require_http_methods(['PUT'])
+@referenced_request("update-product")
+@json_required(keys={'name','description','price_usd','price_zwg','reorder_point','expiry_day_buffer','image_upload','category'})
+@authorization_required
+@requires_permissions(permissions=['update-product'])
+def updateProduct(request):
+    ref = request.ref
+    
+    # Product reference 
+    productReference = request.GET.get('product_reference')
+    
+    # Check if reference is in request GET 
+    if not productReference:
+        return JsonResponse({
+            'ref' : ref,
+            'code' : ErrorCode.MISSING_ATTRIBUTE.value,
+            'error' : "Attribute 'product_reference' is not in request GET",
+            'objects' : ['product_reference'],
+            'timestamp' : datetime.now().isoformat()
+        })
+        
+    
+    # Get the product  
+    product = shared_models.Product.getUsingRef(productReference)
+    
+    # Store a copy of the before  
+    productBefore = product.toDict()
+    
+    # Product does not exist 
+    if not product:
+        return JsonResponse({
+            'ref' : ref,
+            'code' : ErrorCode.PRODUCT_NOT_FOUND.value,
+            'error' : f'Product with provided reference not found',
+            'objects' : [productReference],
+            'timestamp' : datetime.now().isoformat()
+        },status=404)
+    
+    # Find foregn objects (category,image_uploaded)
+    category = shared_models.ProductCategory.getUsingRef(request.json_body['category'])
+    image_uploaded = shared_models.Upload.getUsingRef(request.json_body['image_upload'])
+    
+    # If any is null 
+    if not category:
+        return JsonResponse({
+            'ref' : ref,
+            'code' : ErrorCode.PRODUCT_CATEGORY_NOT_FOUND.value,
+            'error' : 'Provided product category was not found',
+            'objects' : [request.json_body['category']],
+            'timestamp' : datetime.now().isoformat()
+        },status=404)
+        
+    # Update the product
+    product.name = request.json_body['name']
+    product.category = category
+    product.description = request.json_body['description']
+    product.price_usd = request.json_body['price_usd']
+    product.price_zwg = request.json_body['price_zwg']
+    # Add an upload image if there was one uploaded
+    if image_uploaded:
+        product.image_uploaded = image_uploaded
+    product.reorder_point = request.json_body['reorder_point']
+    product.expiry_day_buffer = request.json_body['expiry_day_buffer']
+    product.save()
+    product.refresh_from_db()
+        
+    return JsonResponse({
+        'ref' : ref,
+        'product' : {
+            'before' : productBefore,
+            'after' : product.toDict()
+        },
+        'timestamp' : datetime.now().isoformat()
+    })
+    
+@csrf_exempt
+@require_http_methods(['POST'])
+@referenced_request("add-stock")
+@json_required(keys={'earlist_expiry_date','stock_count','product_reference','buying_price_usd_each','buying_price_zwg_each'})
+@authorization_required
+@requires_permissions(permissions=['add-stock'])
+def addStock(request):
+    # Get the params 
+    earlistExpiryDate = request.json_body['earlist_expiry_date']
+    stockCount = int(request.json_body['stock_count'])
+    productReference =  request.json_body['product_reference']
+    buyingPriceUSDEach = request.json_body['buying_price_usd_each']
+    buyingPriceZWGEach = request.json_body['buying_price_zwg_each']
+    
+    # Parse the earliest expiry date 
+    try:
+        earlistExpiryDate = datetime.fromisoformat(earlistExpiryDate)
+        earlistExpiryDate = timezone.make_aware(earlistExpiryDate)
+    except:
+        return JsonResponse({
+            'ref' : request.ref,
+            'code' : ErrorCode.BAD_DATE_FORMAT.value,
+            'error' : "Invalid iso date format",
+            'objects' : [earlistExpiryDate],
+            'timestamp' : datetime.now().isoformat()    
+        },status=400)
+    
+    # Check if the product is valid 
+    product = shared_models.Product.getUsingRef(productReference)
+    
+    # If null then return 404 
+    if not product:
+        return JsonResponse({
+            'ref' : request.ref,
+            'code' : ErrorCode.PRODUCT_NOT_FOUND.value,
+            'error' : 'Product with provide reference was not found',
+            'objects' : [productReference],
+            'timestamp' : datetime.now().isoformat()
+        },status=404)
+        
+    # Add the stock
+    try: 
+        shared_models.Stock(
+            product = product,
+            expires = earlistExpiryDate,
+            count = stockCount,
+            user = request.user,
+            buying_price_usd_each = buyingPriceUSDEach,
+            buying_price_zwg_each = buyingPriceZWGEach
+        ).save()
+    except:
+        return JsonResponse({
+            'ref' : request.ref,
+            'code' : ErrorCode.COMPLETE_SYSTEM_ERROR.value,
+            'error' : 'Failed to save record to database',
+            'objects' : [productReference],
+            'timestamp' : datetime.now().isoformat()
+        },status=500)
+    
+    # Refresh from db    
+    product.refresh_from_db()
+    
+    # Return success 
+    return JsonResponse({
+        'ref' : request.ref,
+        'code' : ErrorCode.NONE.value,
+        'product' : product.toDict(),
+        'timestamp' : datetime.now().isoformat()
+    })
