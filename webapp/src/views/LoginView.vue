@@ -99,7 +99,7 @@ import { handleAxiosError } from "@/utils/common";
                 }
 
                 // Success then write authorization token to local storage 
-                localStorage.setItem('authorization',payload.token)
+                sessionStorage.setItem('authorization',payload.token)
                 this.$router.replace({ name: 'sales' });
             },
             onLoginClicked(e){

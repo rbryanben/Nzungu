@@ -5,7 +5,7 @@ import axios from "axios"
 const ROUTE_AUTHENTICATE = '/api/v1/authenticate'
 
 export function getAuthorizationToken() {
-  const token = localStorage.getItem('authorization');
+  const token = sessionStorage.getItem('authorization');
 
   if (token && typeof token === 'string' && token.trim() !== '') {
     return token;
