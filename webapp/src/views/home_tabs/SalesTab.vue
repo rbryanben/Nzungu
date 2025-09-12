@@ -4,9 +4,11 @@
         <ToolBar @on_search_text_changed="onSearchTextChanged" @refresh-page="refreshPage" />
 
         <!-- bottom  -->
-        <div class="bottom">
+        <div class="bottom" >
             <!-- left -->
-            <div class="left">
+            <div class="left"
+                ref="productsDiv"
+                @scroll="onPageScroll">
                 <div class="categories">
                     <div class="category-wrapper" :key="category.ref" v-for="category in categories">
                         <StockCategory 
@@ -19,7 +21,7 @@
                     </div>
                 </div>
                 <div class="products">
-                    <div class="product-wrapper" :key="product.ref" v-for="product in filtered_products">
+                    <div class="product-wrapper" :key="product.ref" v-for="product in buffered_elements">
                         <Product
                             :name="product.name"
                             :description="product.description"
@@ -138,7 +140,11 @@
                 search_text : '',
                 submitting_cart: false,
                 idempotence_key : null,
-                payment_method : 'cash'
+                payment_method : 'cash',
+                buffer: {
+                    s : 0,
+                    e : 15
+                }
             }
         },
         mounted(){
@@ -224,6 +230,15 @@
                     this.$store.state.sales.employee.username,
                     null
                 )
+            },
+            onPageScroll(){
+                const div = this.$refs.productsDiv
+                const isAtBottom = div.scrollTop + div.clientHeight >= div.scrollHeight - 5 // 5px tolerance
+
+                // if at the bottom then add items to the list 
+                if (isAtBottom){
+                    this.buffer.e += 10
+                }
             }
         },
         computed: {
@@ -248,6 +263,9 @@
 
                 // Return from selected cateogry
                 return products.filter(product => product.category.ref === this.selected_category)
+            },
+            buffered_elements(){
+                return this.filtered_products.slice(this.buffer.s,this.buffer.e)
             },
             categories(){
                 return this.$store.state.sales.categories
