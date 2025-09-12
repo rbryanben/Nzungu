@@ -273,8 +273,6 @@
             onProductCreated(success,payload){
                 // Stop processing 
                 this.processing = false
-
-                console.log(payload)
                 
                 // Response 
                 if (!success){

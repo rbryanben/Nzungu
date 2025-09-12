@@ -88,7 +88,6 @@
             }  
         },
         mounted(){
-            console.log(validators)
         },
         computed: {
             inputError(){
