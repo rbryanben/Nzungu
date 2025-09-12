@@ -233,7 +233,13 @@
             },
             onPageScroll(){
                 const div = this.$refs.productsDiv
-                const isAtBottom = div.scrollTop + div.clientHeight >= div.scrollHeight - 5 // 5px tolerance
+                const isAtBottom = div.scrollTop + div.clientHeight >= div.scrollHeight - 5 
+                
+                // If at top then reset the buffer 
+                if (div.scrollTop <= 5){
+                    this.buffer.e = 15
+                    return
+                }
 
                 // if at the bottom then add items to the list 
                 if (isAtBottom){
