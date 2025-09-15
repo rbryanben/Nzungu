@@ -98,7 +98,7 @@
             transform: translate(-50%, -50%) scale(1);
             opacity: 1;
         }
-}
+    }
 
     .input-wrapper {
         margin-top: 15px;
@@ -130,8 +130,9 @@
     import PlainButton from './PlainButton.vue';
     import { r_addStock } from '@/repo/ProductsRepo';
     import { backed_error_handler } from '@/utils/common';
-import { notify_success } from '@/utils/notifications';
-
+    import { notify_success } from '@/utils/notifications';
+    import validators from '@/shared/validators';
+    
     export default {
         name: 'PopupForm',
         components: {
@@ -152,7 +153,7 @@ import { notify_success } from '@/utils/notifications';
         },
         computed: {
             form_valid(){
-                return this.stock_payload.stock_count > 0
+                return validators.number(this.stock_payload.stock_count) && this.stock_payload.stock_count != 0
             }
         },
         methods: {
