@@ -62,7 +62,10 @@
         name: "TitledInput_v2",
         computed: {
             inputError(){
-                if (this.value == "") return false
+                if (this.modelValue === "" || this.modelValue == 0 || isNaN(this.modelValue) || this.modelValue == null){
+                    return false
+                }
+
                 return !validators[this.validator](this.modelValue)
             }
         },

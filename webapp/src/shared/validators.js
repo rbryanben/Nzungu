@@ -1,7 +1,7 @@
 export default {
     // Username validator 
     username: (s) => {
-        return typeof s === "string" && s.length > 3;
+        return (typeof s === "string" && s.length > 3) || s === "";
     },
     // Password validator 
     password: (s) => {

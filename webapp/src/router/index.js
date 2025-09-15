@@ -25,7 +25,7 @@ const routes = [
         component: InventoryTab
       },
       {
-        path : 'add-product',
+        path : 'add-product/:reference?',
         name: 'add-product',
         component: AddProductTab
       },

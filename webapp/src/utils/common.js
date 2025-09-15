@@ -7,6 +7,13 @@ export function generateUUID() {
   );
 }
 
+
+export function isNumberValid(value, allowZero = true) {
+  if (value === null || value === undefined || value === '') return false
+  const num = Number(value)
+  return !isNaN(num) && (allowZero ? num >= 0 : num > 0)
+}
+
 export function handleAxiosError(error, options = {}) {
   const {
     notify = true,

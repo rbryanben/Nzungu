@@ -4,7 +4,11 @@
         <div class="bottom-wrapper">
             <div class="left">
                 <div class="title">
-                    Add Product <span class="link-top-right" @click="toogleAddStockWindow(true)">Add Stock</span>
+                    Add Product 
+                </div>
+                <div class="title">
+                    <span class="link-top-right inline" @click="duplicateProduct">Duplicate Product</span>
+                    <span style="margin-left: 10px;" class="link-top-right" @click="toogleAddStockWindow(true)">Add Stock</span>
                 </div>
                 <div class="grid-two">
                     <div class="input-wrapper" style="grid-column: span 2;">
@@ -159,7 +163,7 @@
     }
 
     .grid-two {
-        margin-top: 15px;
+        margin-top: 5px;
         display: grid;
         grid-template-columns: 1fr 1fr;
         grid-column-gap: 20px;
@@ -206,6 +210,12 @@
 
     .link-top-right:hover{
         color: #2a5385;
+        text-decoration: underline;
+    }
+
+    .link-top-right.inline {
+        margin-left: 0px;
+        margin-top: 15px;
     }
  </style>
 
@@ -398,6 +408,10 @@
             },
             addStockFormSubmitting(state){
                 this.add_stock_submitting = state
+            },
+            // Call create product with a duplicate option
+            duplicateProduct(){
+                this.$router.push({name: "add-product",params: { reference : this.product.ref}})
             }
         },
         mounted(){
