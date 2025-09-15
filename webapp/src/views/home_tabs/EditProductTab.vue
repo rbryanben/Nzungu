@@ -7,7 +7,7 @@
                     Add Product 
                 </div>
                 <div class="title">
-                    <span class="link-top-right inline" @click="duplicateProduct">Duplicate Product</span>
+                    <span class="link-top-right inline" @click="duplicateProduct">Duplicate' Product</span>
                     <span style="margin-left: 10px;" class="link-top-right" @click="toogleAddStockWindow(true)">Add Stock</span>
                 </div>
                 <div class="grid-two">
