@@ -48,6 +48,9 @@ class ProductCategory(ReferencedObject):
         
         # Notify that a new product category has been added
         try:
+            # Ensure the connection 
+            socket_ioHelperInstance.ensure_connection(timeout=1)
+        
             socket_ioHelperInstance.client.emit('on-event',{
                 "event" : "product-category-updated",
                 "payload" : self.toDict(small=True),
@@ -145,6 +148,9 @@ class Product(ReferencedObject):
         event_name = "product-added" if is_new else "product-updated"
         
         try:
+            # Ensure the connection 
+            socket_ioHelperInstance.ensure_connection(timeout=1)
+        
             socket_ioHelperInstance.client.emit('on-event', {
                 "event": event_name,
                 "payload": self.toDict(small=True),
@@ -310,14 +316,19 @@ class Stock(ReferencedObject):
     buying_price_zwg_each = models.FloatField(default=0)
 
     def save(self, *args, **kwargs):
+        try:
+            # Ensure the connection 
+            socket_ioHelperInstance.ensure_connection(timeout=1)
         
-        # Notify that a new product category has been added
-        socket_ioHelperInstance.client.emit('on-event',{
-            "event" : "product-stock-updated",
-            "payload" : self.toDict(),
-            "timestamp" : datetime.now().isoformat()
-        })
-        
+            # Notify that a new product category has been added
+            socket_ioHelperInstance.client.emit('on-event',{
+                "event" : "product-stock-updated",
+                "payload" : self.toDict(),
+                "timestamp" : datetime.now().isoformat()
+            })
+        except Exception as e:
+            logging.error("Failed to emit 'product-stock-updated' event to socket.io - {e}")
+            
         return super().save(*args, **kwargs)
     
     def toDict(self):

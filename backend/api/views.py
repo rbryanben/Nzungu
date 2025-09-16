@@ -409,6 +409,9 @@ def completeCart(request):
     
     # Notify the sale
     try:
+        # Ensure the connection 
+        socket_ioHelperInstance.ensure_connection(timeout=1)
+        
         socket_ioHelperInstance.client.emit('on-event',{
             "event" : "cart-completed",
             "payload" : {
@@ -642,7 +645,7 @@ def addStock(request):
             'objects' : [productReference],
             'timestamp' : datetime.now().isoformat()
         },status=404)
-        
+    
     # Add the stock
     try: 
         shared_models.Stock(
