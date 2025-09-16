@@ -129,6 +129,8 @@
                   if ('event' in payload && new Set(['product-updated', 'product-stock-updated', 'cart-completed']).has(payload.event)){
                     // Dispatch the call to update products
                     this.$store.dispatch('sales/fetchProductUpdates',false)
+                    // Fetch inventory
+                    this.$store.dispatch("inventory/fetchInventory")
                     return
                   }
                   
@@ -138,6 +140,8 @@
                     this.$store.dispatch('sales/fetchProductUpdates',true)  
                     // Fetch category updates
                     this.$store.dispatch('sales/fetchAllCategories')
+                    // Fetch inventory 
+                    this.$store.dispatch("inventory/fetchInventory")
                     return
                   }
 

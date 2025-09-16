@@ -409,6 +409,9 @@ def completeCart(request):
     
     # Notify the sale
     try:
+        # Ensure the connection 
+        socket_ioHelperInstance.ensure_connection(timeout=1)
+        
         socket_ioHelperInstance.client.emit('on-event',{
             "event" : "cart-completed",
             "payload" : {
@@ -586,9 +589,11 @@ def updateProduct(request):
     product.description = request.json_body['description']
     product.price_usd = request.json_body['price_usd']
     product.price_zwg = request.json_body['price_zwg']
+    
     # Add an upload image if there was one uploaded
     if image_uploaded:
         product.image_uploaded = image_uploaded
+        
     product.reorder_point = request.json_body['reorder_point']
     product.expiry_day_buffer = request.json_body['expiry_day_buffer']
     product.save()
@@ -642,7 +647,7 @@ def addStock(request):
             'objects' : [productReference],
             'timestamp' : datetime.now().isoformat()
         },status=404)
-        
+    
     # Add the stock
     try: 
         shared_models.Stock(
