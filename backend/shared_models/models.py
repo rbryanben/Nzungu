@@ -156,6 +156,7 @@ class Product(ReferencedObject):
                 "payload": self.toDict(small=True),
                 "timestamp": datetime.now().isoformat()
             })
+            
         except Exception as e:
             logging.error(f"Failed to send socket.io notification - {e}")
             
