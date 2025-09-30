@@ -5,7 +5,7 @@ import {DynamoDBClient, GetItemCommand} from "@aws-sdk/client-dynamodb"
 import logMessage from "./utils/logger.js";
 
 // Attributes 
-const AWS_REAGION = process.env.AWS_REAGION
+const AWS_REAGION = process.env.AWS_REGION
 const DYNAMO_DB_TABLE = process.env.DYNAMO_DB_TABLE
 const ADMIN_CREDENTIALS = process.env.ADMIN_KEY
 

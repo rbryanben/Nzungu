@@ -7,17 +7,24 @@ RUN apt-get update && apt-get install -y \
     python3-dev \
     default-libmysqlclient-dev \
     pkg-config \
+    curl \
+    unzip \
     && rm -rf /var/lib/apt/lists/*
 
 # Working directory
 WORKDIR /app
 COPY . .
 
-# Install dependencies 
-RUN pip3 install -r requirements.txt
+# Install Python dependencies 
+RUN pip3 install -r requirements.txt gunicorn aws-xray-sdk
 
-# Install gunicorn 
-RUN pip3 install gunicorn
+# Download and install X-Ray daemon
+RUN curl -sSL https://s3.amazonaws.com/aws-xray-assets.us-east-1/xray-daemon/aws-xray-daemon-linux-3.x.zip -o xray-daemon.zip \
+    && unzip xray-daemon.zip -d /usr/local/bin \
+    && chmod +x /usr/local/bin/xray
 
-# CMD
-CMD gunicorn --bind 0.0.0.0:80 main.wsgi:application
+# Expose ports
+EXPOSE 80 2000/udp
+
+# Start X-Ray daemon and Gunicorn together
+CMD xray -o & gunicorn --bind 0.0.0.0:80 main.wsgi:application
