@@ -20,8 +20,6 @@ services:
         image: 944752351692.dkr.ecr.eu-west-1.amazonaws.com/backend-nzungu:latest
         ports:
             - 8000:80 
-        volumes:
-            - ~/logs/nzungu-backend/app.log:app.log
         environment:
             APPLICATION_NAME: "Nzungu Backend v1.0.0"
             MAX_FILE_UPLOAD_SIZE: 2000000
