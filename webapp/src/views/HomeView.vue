@@ -79,9 +79,10 @@
   import {io} from "socket.io-client"
   import { ENDPOINTS } from "@/main"
   import { getAuthorizationToken } from "@/repo/AuthorizationRepo"
-  import { completeCart } from "@/repo/SaleRepo"
+  import {r_submitOfflineSale } from "@/repo/SaleRepo"
   import { notify_failed, notify_success } from "@/utils/notifications"
-  import ProductModel from "@/models/ProductModel"
+  import { queryTable, openDB, deleteFromTable, p_updateTable, ensureOpenDB } from "@/repo/LocalDB"
+
 
   export default {
       name: "SaleView",
@@ -146,65 +147,37 @@
                   }
 
               },
+              onOfflineSaleSubmitResult(success, payload, id) {
+                  // If successful OR if it's a 409 conflict → delete from DB
+                  if (success || payload?.status === 409) {
+                      deleteFromTable('offline_sales', id, (delSuccess, delPayload) => {
+                          if (!delSuccess) {
+                              console.error('Failed to delete record from db', delPayload);
+                          }
+                      });
+                  } else {
+                      // Otherwise keep the record in offline DB
+                      console.error('Failed to submit offline sale', payload);
+                  }
+              },  
               submitOfflineSales(){
-                  // context
-                  const context = this
+                  // Context  
+                  const context = this;
 
-                  // Check if there are offline sales 
-                  const offlineSales = localStorage.getItem('LOCAL_SALES_CACHE')
-                  // If object-fi
-                  localStorage.setItem('LOCAL_SALES_CACHE','[]')
+                  // Event when a sale is received 
+                  let onSaleStream = (success,payload)=>{
+                      // Failed to retrieve sales
+                      if (!success){
+                        return
+                      }
 
-                  // If null then return 
-                  if (offlineSales === null){
-                      return
+                      // Send the request
+                      r_submitOfflineSale(context.onOfflineSaleSubmitResult,payload)
                   }
 
-                  // Parse the sales
-                  let obj_offlineSales = []
-                  try{
-                    obj_offlineSales = JSON.parse(offlineSales)
-                  }
-
-                  catch(error){
-                     localStorage.setItem('LOCAL_SALES_CACHE_FAILED',JSON.stringify(offlineSales))
-                     return
-                  }
-
-                  // If not a list then register as failed
-                  if (Array.isArray(obj_offlineSales) === false){
-                      localStorage.setItem('LOCAL_SALES_CACHE_FAILED',JSON.stringify(obj_offlineSales))
-                      return
-                  }
-
-                  // Submit the products
-                  obj_offlineSales.forEach(sale => {
-                      // Products as products list 
-                      const productsAsListOfProductModel = sale.cart_items.map(product => {
-                        return  new ProductModel()
-                                    .setId(product.id)
-                                    .setRef(product.ref)
-                                    .setFetched(product.fetched)
-                                    .setName(product.name)
-                                    .setCategoryRef(product.category_ref)
-                                    .setDescription(product.description)
-                                    .setInStock(product.in_stock)
-                                    .setPriceUsd(product.price_usd)
-                                    .setPriceZwg(product.price_zwg)
-                                    .setLastUpdated(product.last_updated)
-                      })
-                     
-                      completeCart(
-                        context.onOfflineSubmitted,
-                        productsAsListOfProductModel,
-                        sale.currency,
-                        sale.idempotence_key,
-                        sale.payment_option,
-                        sale.teller,
-                        sale.shop
-                      )
-                  });
-
+                  // Get the uncommited sales 
+                  const range = IDBKeyRange.only(0)
+                  queryTable('offline_sales','commitedIndex',range,onSaleStream)
               },
               logout(){
                   // Clear any cart 
@@ -215,9 +188,17 @@
               }
           },
           mounted(){
-              this.init()
-              // Set a background task for submitting sales
-              //setInterval(this.submitOfflineSales,15 * 1000)
+              ensureOpenDB().then((e)=>{
+                  // Initalize
+                  this.init()
+                  // Set a background task for submitting sales
+                  setInterval(this.submitOfflineSales,30 * 1000)
+                  // Fetch updates every minute 
+                  setInterval(()=>{
+                      // Dispatch the call to update products
+                      this.$store.dispatch('sales/fetchProductUpdates',false)
+                  },60*1000)
+              })
           }
   }
 </script>

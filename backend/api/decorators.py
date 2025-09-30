@@ -12,7 +12,8 @@ from .error_mappings import ErrorCode
 
 # AWS paramets 
 reagion = os.getenv('AWS_REAGION')
-dynamo_db_table = os.getenv('DYNAMO_DB_TABLE')
+dynamo_db_auth_table = os.getenv('DYNAMO_DB_AUTH_TABLE')
+dynamo_db_idempotent_keys_table = os.getenv('DYNAMO_DB_IDEMPOTENT_KEY_TABLE')
 
 # AWS clients
 dynamo_db = boto3.client('dynamodb',region_name=reagion)
@@ -32,7 +33,7 @@ def authorization_required(func):
             
         # Authorization is valid
         item = dynamo_db.get_item(
-            TableName=dynamo_db_table,
+            TableName=dynamo_db_auth_table,
             Key={
                 "auth_token" : {
                     "S" : authToken
@@ -146,6 +147,71 @@ def referenced_request(prefix=None):
             logging.info(f"{request.ref} - {request.method=} {request.path=} {request.user=}")
             response =  func(request)
             logging.info(f"{request.ref} - {response.status_code=}")
+            return response
+        return inner
+    return decorator
+
+def idempotent_function(func_name="app.func"):
+    def decorator(func,func_name=func_name):
+        def inner(request):
+            # check if idempotence_key is in request 
+            if "idempotence_key" not in request.json_body:
+                return JsonResponse({
+                    "error" : ErrorCode.APP_MISCONFIGURATION.value,
+                    "message" : "view configuration error",
+                    "objects" : ['idempotent_function_decorator'],
+                    "timestamp" : datetime.now().isoformat()
+                },status=500)
+                
+            # Check if the idempotence_key has been used 
+            idempotence_key = request.json_body['idempotence_key']
+            
+            # Authorization is valid
+            item = dynamo_db.get_item(
+                TableName=dynamo_db_idempotent_keys_table,
+                Key={
+                    "key" : {
+                        "S" : idempotence_key
+                    }
+                }
+            )
+            
+            # Invalid auth token 
+            if 'Item' in item:
+                return JsonResponse({
+                    "ref" : request.ref,
+                    "error" : ErrorCode.REQUEST_PROCESSED.value,
+                    "message" : "A request with the same idempotence key has already been processed",
+                    "objects" : [idempotence_key],
+                    "timestamp" : datetime.now().isoformat()
+                },safe=False,status=409)
+                
+            # Perform the request 
+            response = func(request)
+            
+            # Check status code 
+            if response.status_code == 200:
+                dynamo_db.put_item(
+                    TableName= dynamo_db_idempotent_keys_table,
+                    Item = {
+                        "key" : {
+                            "S" : idempotence_key
+                        },
+                        "request_reference" : {
+                            "S" : request.ref
+                        },
+                        "function" : {
+                            "S" : func_name  
+                        },
+                        "response_status" : {
+                            "N" : str(response.status_code)
+                        },
+                        "timestamp" : {
+                            "S" : datetime.now().isoformat()
+                        }
+                    }
+                )
+            # Return the response 
             return response
         return inner
     return decorator

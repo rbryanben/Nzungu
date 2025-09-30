@@ -122,7 +122,7 @@
     import { generateUUID } from "@/utils/common";
     import { notify_success, notify_cart_completed, notify_failed } from "@/utils/notifications";
     import ToolBar from "@/components/ToolBar.vue";
-    import { backed_error_handler } from "@/utils/common";
+    import {bulkAddRecord } from "@/repo/LocalDB";
 
     export default {
         name: "SalesTab",
@@ -139,11 +139,11 @@
                 selected_category: '*',
                 search_text : '',
                 submitting_cart: false,
-                idempotence_key : null,
+                cartReference : null,
                 payment_method : 'cash',
                 buffer: {
                     s : 0,
-                    e : 15
+                    e : 25
                 }
             }
         },
@@ -152,7 +152,7 @@
         },
         methods: {
             init(){
-                this.idempotence_key = generateUUID()
+                this.cartReference = generateUUID()
             },
             refreshPage(){
                 this.$emit("refresh-page")
@@ -180,18 +180,14 @@
                 this.selected_category = '*'
                 this.search_text = searchText
             },
-            onCartCompleted(success,payload){
-                // Stop the loading 
-                this.submitting_cart = false
-
-                // Failed 
+            onOfflineDbWriteResult(success,error){
+                // Success then return 
                 if (!success){
-                    return backed_error_handler(payload)
+                    // Failed
+                    notify_failed(`Could not complete offline sales - ${error}`)
+                    return
                 }
-                
-                // Generate new idempotance key 
-                this.idempotence_key = generateUUID()
-                
+
                 // log the event
                 this.$store.dispatch('cart/clearCart')
 
@@ -199,7 +195,55 @@
                 notify_cart_completed()
                 
                 // Notify the client
-                notify_success(`Completed cart - ${payload.ref}`)
+                notify_success(`Completed sale as offline - ${this.cartReference}`)
+
+                // Create a new cart
+                this.cartReference = generateUUID()
+            },
+            onOnlineCartCompleted(success,payload){
+                // Stop the loading 
+                this.submitting_cart = false
+
+                //#region  Failed Online Sale 
+                if (!success){
+                    // Iterate each product and format for local db write
+                    const sales = this.$store.getters['cart/cart_products_as_individual_list'].map(product => ({
+                        product_reference : product.ref,
+                        price_usd : product.price_usd,
+                        price_zwg : product.price_zwg,
+                        last_updated : product.last_upated,
+                        fetched: product.fetched,
+                        idempotence_key : generateUUID(),
+                        teller : this.$store.state.sales.employee.username,
+                        timestamp : new Date().toISOString(),
+                        cart : this.cartReference,
+                        payment_option: this.payment_method,
+                        currency: this.$store.state.currency,
+                        commited : 0
+                    }));
+
+                    // Add each sale to the local db 
+                    bulkAddRecord('offline_sales',sales,this.onOfflineDbWriteResult)
+
+                    // Return
+                    return
+                }
+                //#endregion 
+
+                //#region Successful Online sale
+
+                // log the event
+                this.$store.dispatch('cart/clearCart')
+
+                // Notify cart completed 
+                notify_cart_completed()
+                
+                // Notify the client
+                notify_success(`Completed cart online - ${payload.ref}`)
+
+                this.cartReference = generateUUID()
+
+                //#endregion
             },
             onCompleteCart(){
                 // Show progress 
@@ -222,10 +266,10 @@
 
                 // Complete the cart 
                 completeCart(
-                    this.onCartCompleted,
+                    this.onOnlineCartCompleted,
                     listOfProductModel,
                     this.$store.state.currency,
-                    this.idempotence_key,
+                    this.cartReference,
                     this.payment_method,
                     this.$store.state.sales.employee.username,
                     null

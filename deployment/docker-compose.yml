@@ -4,13 +4,13 @@ services:
         ports:
             - 51592:80
         volumes:
-            - /logs/live-updates-service:/logs
+            - ~/logs/live-updates-service:/logs
         environment:
             # AWS
             AWS_REAGION: ${AWS_REAGION}
             AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
             AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-            DYNAMO_DB_TABLE: ${DYNAMO_DB_TABLE}
+            DYNAMO_DB_TABLE: ${DYNAMO_DB_AUTH_TABLE}
             # Application
             PORT: 80
             ADMIN_KEY: live-updates-8d3922b7-cfca-4dd6-8cde-198c0c3649d8
@@ -21,7 +21,7 @@ services:
         ports:
             - 8000:80 
         volumes:
-            - /logs/nzungu-backend:/logs
+            - ~/logs/nzungu-backend/app.log:app.log
         environment:
             APPLICATION_NAME: "Nzungu Backend v1.0.0"
             MAX_FILE_UPLOAD_SIZE: 2000000
@@ -32,7 +32,8 @@ services:
             AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
             AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
             FILE_S3_BUCKET: "test-sandy-salts-nzungu"
-            DYNAMO_DB_TABLE: "test-authorization-nzungu"
+            DYNAMO_DB_AUTH_TABLE: ${DYNAMO_DB_AUTH_TABLE}
+            DYNAMO_DB_IDEMPOTENT_KEY_TABLE: ${DYNAMO_DB_IDEMPOTENT_KEY_TABLE}
             DB_HOST: ${DB_HOST}
             DB_PORT: ${DB_PORT}
             DB_NAME: ${DB_NAME}

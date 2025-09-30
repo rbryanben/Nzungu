@@ -505,3 +505,29 @@ class ProductSale(ReferencedObject):
     
     def __str__(self):
         return f"{self.cart} : {self.product_name}"
+    
+    
+class FeatureFlag(models.Model):
+    id = models.AutoField(primary_key=True)
+    feature = models.CharField(max_length=256)
+    user = models.CharField(max_length=256)
+    enabled = models.BooleanField(default=False)
+    last_updated = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f'feature={self.feature} user={self.user}'
+    
+    @staticmethod
+    def getFlags(user: str) -> QuerySet['FeatureFlag'] :
+        return FeatureFlag.objects.filter(
+            user__in={'*',user},
+            enabled=True
+        )
+    
+    @staticmethod
+    def hasAccess(feature : str,user: str) -> bool:
+        return FeatureFlag.objects.filter(
+            feature=feature,
+            enabled=True,
+            user__in={'*',user}
+        ).exists()

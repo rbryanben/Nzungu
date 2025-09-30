@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 from dotenv import load_dotenv
+from aws_xray_sdk.core import patch
 
 
 load_dotenv()
@@ -44,10 +45,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'api',
-    'shared_models'
+    'shared_models',
+    'aws_xray_sdk.ext.django',
 ]
 
 MIDDLEWARE = [
+    'aws_xray_sdk.ext.django.middleware.XRayMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -95,6 +98,19 @@ DATABASES = {
         }
     }
 }
+
+XRAY_RECORDER = {
+    'AWS_XRAY_DAEMON_ADDRESS': '127.0.0.1:2000',
+    'AUTO_INSTRUMENT': True,
+    'AWS_XRAY_CONTEXT_MISSING': 'LOG_ERROR',
+    'PLUGINS': (),
+    'SAMPLING': True,
+    'SAMPLING_RULES': None,
+    'AWS_XRAY_TRACING_NAME': 'backend-nzungu',
+    'DYNAMIC_NAMING': None,
+    'STREAMING_THRESHOLD': None,
+}
+
 
 
 # Password validation
@@ -151,3 +167,5 @@ CACHES = {
         "TIMEOUT": 180, 
     }
 }
+
+patch(['boto3'])

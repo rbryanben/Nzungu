@@ -10,10 +10,13 @@ urlpatterns = [
     path('v1/get-products-stock-filters',views.getProductStockFilters,name='get-product-stock-filters'),
     path('v1/create-product',view=views.createProduct,name='create-product'),
     path('v1/complete-cart',view=views.completeCart,name='complete-cart'),
+    path('v1/offline-sale',view=views.offlineSale,name="offline-sale"),
     path('v1/get-product-updates',view=views.getProductUpdates,name='get-product-updates'),
     path('v1/get-employee-details',view=views.getEmployeeDetails,name='get-employee-details'),
     path('v1/get-teller-sales',views.getTellerSales,name='get-teller-sales'),
     path('v1/get-product',views.getProduct,name='get-product'),
     path('v1/update-product',views.updateProduct,name='update-product'),
-    path('v1/add-stock',views.addStock,name='add-stock')
+    path('v1/add-stock',views.addStock,name='add-stock'),
+    path('v1/check-feature-flag',views.checkFeatureFlag,name="check-feature-flag"),
+    path('v1/get-feature-flags',views.getFeatureFlags,name='get-feature-flags')
 ]

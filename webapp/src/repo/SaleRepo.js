@@ -5,6 +5,7 @@ import { generateUUID } from "@/utils/common.js"
 import {getAuthorizationToken} from "./AuthorizationRepo.js"
 
 const ROUTE_COMPLETE_CART = "/api/v1/complete-cart"
+const ROUTE_OFFLINE_SALE = '/api/v1/offline-sale'
 const ROUTE_GET_CATEGORIES = '/api/v1/get-categories'
 const ROUTE_GET_PRODUCTS = '/api/v1/get-products'
 const ROUTE_GET_UDPATED_PRODUCTS = '/api/v1/get-product-updates'
@@ -29,7 +30,7 @@ export function getTellerSales(period,callback){
 /*
     Fetches products from backend 
 */
-export function getAllProducts(callback){
+export function r_getAllProducts(callback){
     axios.get(
         ENDPOINTS.BASE_URL + ROUTE_GET_PRODUCTS,
         {
@@ -141,4 +142,18 @@ export function completeCart(callback,cart_productModelList,currency,idempotence
     .catch(err => {
         callback(false,err)
     })
+}
+
+export function r_submitOfflineSale(callback,payload){
+    // Get the db id 
+    const id = payload.id
+    
+    axios.post(ENDPOINTS.BASE_URL + ROUTE_OFFLINE_SALE,payload,{
+        headers: {
+            Authorization: getAuthorizationToken()
+        }
+    })
+    .then(res => res.data)
+    .then(data => callback(true,data,id))
+    .catch(err => callback(false,err,id))
 }

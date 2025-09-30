@@ -32,9 +32,7 @@
 </style>
 
 <script>
-    import { ENDPOINTS } from '@/main';
 import { getEmployeeDetails } from '@/repo/SaleRepo';
-import { notify_failed, notify_success } from '@/utils/notifications';
 
     export default {
         name : 'EntryView',

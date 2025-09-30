@@ -4,7 +4,7 @@ import './registerServiceWorker'
 import router from './router'
 import store from './store'
 import axios from 'axios'
-import { notify_failed } from './utils/notifications'
+
 
 export const ENDPOINTS = {
     "BASE_URL" : process.env.VUE_APP_BASE_URL,
@@ -27,4 +27,7 @@ axios.interceptors.response.use(
   }
 );
 
+
 createApp(App).use(store).use(router).mount('#app')
+
+

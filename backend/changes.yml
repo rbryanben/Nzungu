@@ -1,0 +1,13 @@
+- 09/26/2025:
+  Views:
+    - Added offline-sale view 
+  Decorators:
+    - Added a decorator for idempotent functions
+  Deployment:
+    - Renamed DYNAMO_DB_TABLE to DYNAMO_DB_AUTH_TABLE .env
+    - Added DYNAMO_DB_IDEMPOTENT_KEY_TABLE to .env
+    
+- 09/30/2025:
+  Views:
+    - Added get-feature-flags-view 
+    - Added check-feature-flag view 

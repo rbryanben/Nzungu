@@ -6,7 +6,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 import boto3
 import logging
-from .decorators import authorization_required, json_required, requires_permissions, referenced_request
+from .decorators import authorization_required, json_required, requires_permissions, referenced_request, idempotent_function
 from . import models as api_models
 from django.views.decorators.cache import cache_page
 from shared_models import models as shared_models
@@ -16,6 +16,7 @@ from django.utils import timezone
 from utils.common import resizeAndRemoveBackground
 from io import BytesIO
 from .error_mappings import ErrorCode
+from aws_xray_sdk.core import xray_recorder
 
 # Logging configuration
 logging.basicConfig(
@@ -26,7 +27,7 @@ logging.basicConfig(
 # PARAMETERS 
 FILE_S3_BUCKET = os.getenv("FILE_S3_BUCKET")
 AWS_REAGION = os.getenv('AWS_REAGION')
-DYNAMO_DB_TABLE = os.getenv('DYNAMO_DB_TABLE')
+DYNAMO_DB_AUTH_TABLE = os.getenv('DYNAMO_DB_AUTH_TABLE')
 
 # AWS clients 
 s3 = boto3.client('s3')
@@ -49,55 +50,60 @@ def authenticate(request):
     ref = request.ref
     
     # Get the username and password
-    username = request.json_body['username']
-    password = request.json_body['password']
-    user = api_models.User.getUserByUsername(username)
+    with xray_recorder.in_subsegment('fetch-user') as s_seg:
+        username = request.json_body['username']
+        password = request.json_body['password']
+        s_seg.put_annotation('username',username)
+        user = api_models.User.getUserByUsername(username)
     
     # check if the credentials are correct
-    if not user or not user.check_password(password):
-        return JsonResponse({
-            "error" : "Invalid credentials",
-            "timestamp" : datetime.now().isoformat()
-        },safe=False,status=401)
-    
-    # Disabled user
-    if not user.active:
-        return JsonResponse({
-            "error" : "This user is disabled",
-            "timestamp" : datetime.now().isoformat()
-        },safe=False,status=403)
+    with xray_recorder.in_subsegment('validate-credentials'):
+        if not user or not user.check_password(password):
+            return JsonResponse({
+                "error" : "Invalid credentials",
+                "timestamp" : datetime.now().isoformat()
+            },safe=False,status=401)
+        
+        # Disabled user
+        if not user.active:
+            return JsonResponse({
+                "error" : "This user is disabled",
+                "timestamp" : datetime.now().isoformat()
+            },safe=False,status=403)
             
     
-    # Create an auth token
-    auth_token = f"auth-token-{uuid4()}"
-    
-    # save the token to dynamo db
-    try:
-        dynamo_db.put_item(
-            TableName= DYNAMO_DB_TABLE,
-            Item = {
-                "auth_token" : {
-                    "S" : auth_token
-                },
-                "username" : {
-                    "S" : user.username
-                },
-                "active" : {
-                    "BOOL" : user.active
-                },
-                "created" : {
-                    "S" : datetime.now().isoformat()
+    # Begin sub segment
+    with xray_recorder.in_subsegment('create-and-store-token-to-dynamoDb'):
+        # Create an auth token
+        auth_token = f"auth-token-{uuid4()}"
+        
+        # save the token to dynamo db
+        try:
+            dynamo_db.put_item(
+                TableName= DYNAMO_DB_AUTH_TABLE,
+                Item = {
+                    "auth_token" : {
+                        "S" : auth_token
+                    },
+                    "username" : {
+                        "S" : user.username
+                    },
+                    "active" : {
+                        "BOOL" : user.active
+                    },
+                    "created" : {
+                        "S" : datetime.now().isoformat()
+                    }
                 }
-            }
-        )
-    except Exception as e:
-        logging.error(f'{ref} - Failed to write authorization token to dynamodb - {e}')
-        return JsonResponse({
-            "error" : "AWS dependency error",
-            "ref" : ref,
-            "timestamp" : datetime.now().isoformat()
-        },safe=False,status=524)
-    
+            )
+        except Exception as e:
+            logging.error(f'{ref} - Failed to write authorization token to dynamodb - {e}')
+            return JsonResponse({
+                "error" : "AWS dependency error",
+                "ref" : ref,
+                "timestamp" : datetime.now().isoformat()
+            },safe=False,status=524)
+        
     # Return the auth token 
     return JsonResponse({
         "token" : auth_token,
@@ -432,7 +438,67 @@ def completeCart(request):
         "idempotence_key" : idempotence_key,
         "cart_count" : len(cart_items)
     })
+
+@csrf_exempt
+@require_http_methods(['POST'])
+@referenced_request("complete-cart")
+@json_required(keys={'product_reference','price_usd','price_zwg','fetched',
+                     "idempotence_key","teller","currency","payment_option","timestamp","cart"})
+@authorization_required
+@requires_permissions(permissions=['commit-sale'])
+@idempotent_function(func_name="offlineSale")
+def offlineSale(request):
     
+    # Parse dates 
+    fetched = datetime.fromisoformat(request.json_body['fetched'])
+    timestamp = datetime.fromisoformat(request.json_body['timestamp'])
+    
+    # Check if we have processed this request 
+    sale = shared_models.ProductSale(
+        product = request.json_body['product_reference'],
+        count = 1,
+        price_usd = request.json_body['price_usd'],
+        price_zwg = request.json_body['price_zwg'],
+        fetched = fetched,
+        teller = request.user,
+        cart = request.json_body['cart'],
+        currency = request.json_body['currency'],
+        commited = timestamp,
+        payment_option = request.json_body['payment_option']
+    )
+    
+    # Save the sale
+    sale.save()
+    
+    # Notify the sale
+    try:
+        # Ensure the connection 
+        socket_ioHelperInstance.ensure_connection(timeout=1)
+        
+        socket_ioHelperInstance.client.emit('on-event',{
+            "event" : "cart-completed",
+            "payload" : {
+                "ref" : request.ref,
+                "timestamp" : datetime.now().isoformat(),
+                "idempotence_key" : request.json_body['idempotence_key'],
+            },
+            "timestamp" : datetime.now().isoformat()
+        })
+    except Exception as e:
+            logging.error(f"Failed to send socket.io notification - {e}")
+    
+    # Mock Success 
+    return JsonResponse({
+        "ref" : request.ref,
+        "sale": {
+            "idempotence_key" : request.json_body['idempotence_key'],
+            "teller" : request.json_body['teller'],
+            "product_reference" : request.json_body['product_reference']
+        },
+        "timestamp" : datetime.now().isoformat()    
+    },safe=False)
+    
+  
 @csrf_exempt
 @require_http_methods(['GET'])
 @referenced_request("get-employee-details")
@@ -677,4 +743,52 @@ def addStock(request):
         'product' : product.toDict(),
         'timestamp' : datetime.now().isoformat()
     })
-    
+
+@require_http_methods(['GET'])
+@authorization_required
+@referenced_request(prefix='check-feature-flag')
+def checkFeatureFlag(request):
+    if 'feature' not in request.GET:
+        return JsonResponse({
+            'ref': request.ref,
+            'error': ErrorCode.MISSING_ATTRIBUTE.value,
+            'message': 'Missing parameter in GET',
+            'objects': ['feature'],
+            'timestamp': datetime.now().isoformat()
+        })
+
+    feature = request.GET.get('feature')
+
+    # Correct way to use subsegment with context manager
+    with xray_recorder.in_subsegment('check-feature-flag') as subsegment:
+        result = {
+            'ref': request.ref,
+            'message': 'Feature is not enabled for provided user',
+            'objects': [feature],
+            'feature': {
+                'name': feature,
+                'enabled': shared_models.FeatureFlag.hasAccess(feature,request.user.username)
+            },
+            'timestamp': datetime.now().isoformat()
+        }
+
+    return JsonResponse(result)
+        
+@require_http_methods(['GET'])
+@authorization_required
+@referenced_request(prefix='check-feature-flag')
+def getFeatureFlags(request):
+    with xray_recorder.in_subsegment('get-feature-flags') as s_seg:
+        # Flags 
+        flags = shared_models.FeatureFlag.getFlags(request.user.username)
+        
+        # Result 
+        result = {
+            'ref': request.ref,
+            'flags': {flag.feature : flag.enabled for flag in flags},
+            'timestamp': datetime.now().isoformat()
+        }
+
+    return JsonResponse(result)
+        
+        
