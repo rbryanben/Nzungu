@@ -11,12 +11,12 @@ import logging
 from .error_mappings import ErrorCode
 
 # AWS paramets 
-reagion = os.getenv('AWS_REAGION')
+region = os.getenv('AWS_REGION')
 dynamo_db_auth_table = os.getenv('DYNAMO_DB_AUTH_TABLE')
 dynamo_db_idempotent_keys_table = os.getenv('DYNAMO_DB_IDEMPOTENT_KEY_TABLE')
 
 # AWS clients
-dynamo_db = boto3.client('dynamodb',region_name=reagion)
+dynamo_db = boto3.client('dynamodb',region_name=region)
 
 def authorization_required(func):
     def inner(request):

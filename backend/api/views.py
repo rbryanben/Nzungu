@@ -26,12 +26,12 @@ logging.basicConfig(
 
 # PARAMETERS 
 FILE_S3_BUCKET = os.getenv("FILE_S3_BUCKET")
-AWS_REAGION = os.getenv('AWS_REAGION')
+AWS_REGION = os.getenv('AWS_REGION')
 DYNAMO_DB_AUTH_TABLE = os.getenv('DYNAMO_DB_AUTH_TABLE')
 
 # AWS clients 
 s3 = boto3.client('s3')
-dynamo_db = boto3.client('dynamodb',region_name=AWS_REAGION)
+dynamo_db = boto3.client('dynamodb',region_name=AWS_REGION)
 
 @referenced_request("health")
 def health(request):
@@ -169,7 +169,7 @@ def file_upload(request):
         },status=500)
         
     # Draft the url
-    file_url = f"https://{FILE_S3_BUCKET}.s3.{AWS_REAGION}.amazonaws.com/{key}"
+    file_url = f"https://{FILE_S3_BUCKET}.s3.{AWS_REGION}.amazonaws.com/{key}"
     
     # Store the file object
     shared_models.Upload(

@@ -5,12 +5,12 @@ import {DynamoDBClient, GetItemCommand} from "@aws-sdk/client-dynamodb"
 import logMessage from "./utils/logger.js";
 
 // Attributes 
-const AWS_REAGION = process.env.AWS_REGION
+const AWS_REGION = process.env.AWS_REGION
 const DYNAMO_DB_TABLE = process.env.DYNAMO_DB_TABLE
 const ADMIN_CREDENTIALS = process.env.ADMIN_KEY
 
 // AWS
-const dynamoDb = new DynamoDBClient({region: AWS_REAGION})
+const dynamoDb = new DynamoDBClient({region: AWS_REGION})
 
 export const authorization_required = async (socket,next) => {
     // Get the parsed token

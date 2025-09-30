@@ -16,15 +16,12 @@ WORKDIR /app
 COPY . .
 
 # Install Python dependencies 
-RUN pip3 install -r requirements.txt gunicorn aws-xray-sdk
+RUN pip3 install -r requirements.txt 
 
 # Download and install X-Ray daemon
-RUN curl -sSL https://s3.amazonaws.com/aws-xray-assets.us-east-1/xray-daemon/aws-xray-daemon-linux-3.x.zip -o xray-daemon.zip \
-    && unzip xray-daemon.zip -d /usr/local/bin \
+
+RUN unzip packages/aws-xray-daemon-linux-3.x.zip -d /usr/local/bin \
     && chmod +x /usr/local/bin/xray
 
-# Expose ports
-EXPOSE 80 2000/udp
-
 # Start X-Ray daemon and Gunicorn together
-CMD xray -o & gunicorn --bind 0.0.0.0:80 main.wsgi:application
+CMD xray -o & gunicorn --bind 0.0.0.0:80 --workers 4 main.wsgi:application

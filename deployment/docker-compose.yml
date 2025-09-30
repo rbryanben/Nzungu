@@ -7,7 +7,7 @@ services:
             - ~/logs/live-updates-service:/logs
         environment:
             # AWS
-            AWS_REGION: ${AWS_REAGION}
+            AWS_REGION: ${AWS_REGION}
             AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
             AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
             DYNAMO_DB_TABLE: ${DYNAMO_DB_AUTH_TABLE}
@@ -26,9 +26,10 @@ services:
             EXG_USD_ZWG: 40 
             LIVE_UPDATES_ENDPOINT: "https://live-updates.bradfeild.yanney.co.zw"
             LIVE_UPDATES_KEY: "live-updates-8d3922b7-cfca-4dd6-8cde-198c0c3649d8"
-            AWS_REGION: ${AWS_REAGION}
+            AWS_REGION: ${AWS_REGION}
             AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
             AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+            X-RAY-DAEMON-ADDRESS: "127.0.0.1:2000"
             FILE_S3_BUCKET: "test-sandy-salts-nzungu"
             DYNAMO_DB_AUTH_TABLE: ${DYNAMO_DB_AUTH_TABLE}
             DYNAMO_DB_IDEMPOTENT_KEY_TABLE: ${DYNAMO_DB_IDEMPOTENT_KEY_TABLE}
