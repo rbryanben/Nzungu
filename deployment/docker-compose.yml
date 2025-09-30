@@ -5,7 +5,7 @@ services:
         ports:
         - "2000:2000/udp"   # UDP port for X-Ray SDK
         environment:
-        AWS_REGION: ${AWS_REGION}
+        AWS_REGION: ${AWS_REAGION}
         AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
         AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
         restart: unless-stopped
