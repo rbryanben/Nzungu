@@ -1,4 +1,14 @@
 services:
+    xray-daemon:
+        image: amazon/aws-xray-daemon
+        container_name: xray-daemon
+        ports:
+        - "2000:2000/udp"   # UDP port for X-Ray SDK
+        environment:
+        AWS_REGION: ${AWS_REGION}
+        AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+        AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+        restart: unless-stopped
     live-updates-service:
         image: 944752351692.dkr.ecr.eu-west-1.amazonaws.com/live-updates-nzungu
         ports:
@@ -17,6 +27,7 @@ services:
     backend-service:
         depends_on:
             - live-updates-service
+            - xray-daemon
         image: 944752351692.dkr.ecr.eu-west-1.amazonaws.com/backend-nzungu:latest
         ports:
             - 8000:80 
